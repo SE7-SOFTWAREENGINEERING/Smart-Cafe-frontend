@@ -12,6 +12,8 @@ const StudentBooking = React.lazy(() => import('./student/booking/page'));
 const StudentQueue = React.lazy(() => import('./student/queue/page'));
 const StudentNotifications = React.lazy(() => import('./student/notifications/page'));
 const StudentSustainability = React.lazy(() => import('./student/sustainability/page'));
+const StudentCanteens = React.lazy(() => import('./student/canteens/page'));
+const StudentItemDetail = React.lazy(() => import('./student/item/page'));
 
 const StaffDashboard = React.lazy(() => import('./staff/dashboard/page'));
 const StaffScanToken = React.lazy(() => import('./staff/scan-token/page'));
@@ -46,7 +48,10 @@ function App() {
                 <Route path="/student/booking" element={<StudentBooking />} />
                 <Route path="/student/queue" element={<StudentQueue />} />
                 <Route path="/student/notifications" element={<StudentNotifications />} />
+                <Route path="/student/notifications" element={<StudentNotifications />} />
                 <Route path="/student/sustainability" element={<StudentSustainability />} />
+                <Route path="/student/canteens" element={<StudentCanteens />} />
+                <Route path="/student/item/:id" element={<StudentItemDetail />} />
               </Route>
 
               {/* Staff Routes */}
