@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Filter, BarChart2 } from 'lucide-react';
+import { Filter, BarChart2, CheckCircle, XCircle } from 'lucide-react';
 
 const ManagerForecasts: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState('Week');
@@ -16,14 +16,14 @@ const ManagerForecasts: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Forecast Analytics</h1>
           <p className="text-sm text-gray-500 mt-1">AI-driven demand prediction and planning.</p>
         </div>
-        
+
         {/* Filters Panel */}
         <div className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
           <div className="flex items-center gap-2 px-3 border-r border-gray-200">
             <Filter size={16} className="text-gray-400" />
             <span className="text-sm font-medium text-gray-700">Filters:</span>
           </div>
-          <select 
+          <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
             className="text-sm border-none focus:ring-0 text-gray-600 font-medium cursor-pointer"
@@ -33,7 +33,7 @@ const ManagerForecasts: React.FC = () => {
             <option>Month</option>
           </select>
           <div className="w-px h-4 bg-gray-200"></div>
-          <select 
+          <select
             value={mealFilter}
             onChange={(e) => setMealFilter(e.target.value)}
             className="text-sm border-none focus:ring-0 text-gray-600 font-medium cursor-pointer"
@@ -57,21 +57,21 @@ const ManagerForecasts: React.FC = () => {
             Next 7 Days
           </span>
         </div>
-        
+
         <div className="h-64 flex items-end justify-between gap-2 px-4">
           {chartData.map((value, index) => (
             <div key={index} className="flex flex-col items-center gap-2 flex-1 group">
-               <div className="relative w-full flex justify-center items-end h-48 bg-gray-50 rounded-lg overflow-hidden">
-                  <div 
-                    className="w-full mx-1 bg-blue-500 rounded-t-sm transition-all duration-500 group-hover:bg-blue-600"
-                    style={{ height: `${(value / maxVal) * 100}%` }}
-                  ></div>
-                  {/* Tooltip */}
-                  <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 bg-gray-800 text-white text-xs py-1 px-2 rounded shadow transition-opacity z-10">
-                    {value}
-                  </div>
-               </div>
-               <span className="text-xs text-gray-500 font-medium">{days[index]}</span>
+              <div className="relative w-full flex justify-center items-end h-48 bg-gray-50 rounded-lg overflow-hidden">
+                <div
+                  className="w-full mx-1 bg-blue-500 rounded-t-sm transition-all duration-500 group-hover:bg-blue-600"
+                  style={{ height: `${(value / maxVal) * 100}%` }}
+                ></div>
+                {/* Tooltip */}
+                <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 bg-gray-800 text-white text-xs py-1 px-2 rounded shadow transition-opacity z-10">
+                  {value}
+                </div>
+              </div>
+              <span className="text-xs text-gray-500 font-medium">{days[index]}</span>
             </div>
           ))}
         </div>
@@ -82,59 +82,90 @@ const ManagerForecasts: React.FC = () => {
         <h3 className="font-semibold mb-4 text-gray-900">Item-wise Predictions</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-500 font-medium">
-                  <tr>
-                      <th className="px-4 py-3 rounded-l-lg">Item Name</th>
-                      <th className="px-4 py-3">Category</th>
-                      <th className="px-4 py-3">Predicted Qty</th>
-                      <th className="px-4 py-3">Trend</th>
-                      <th className="px-4 py-3 rounded-r-lg">Confidence</th>
-                  </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                  <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900">Vegetable Biryani</td>
-                      <td className="px-4 py-3 text-gray-500">Lunch</td>
-                      <td className="px-4 py-3">150 plates</td>
-                      <td className="px-4 py-3 text-green-600">↑ High</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: '92%' }}></div>
-                          </div>
-                          <span className="text-xs text-gray-500">92%</span>
-                        </div>
-                      </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900">Paneer Butter Masala</td>
-                      <td className="px-4 py-3 text-gray-500">Lunch</td>
-                      <td className="px-4 py-3">80 plates</td>
-                      <td className="px-4 py-3 text-gray-500">→ Stable</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: '89%' }}></div>
-                          </div>
-                          <span className="text-xs text-gray-500">89%</span>
-                        </div>
-                      </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900">Idli Sambar</td>
-                      <td className="px-4 py-3 text-gray-500">Breakfast</td>
-                      <td className="px-4 py-3">200 plates</td>
-                      <td className="px-4 py-3 text-green-600">↑ High</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: '95%' }}></div>
-                          </div>
-                          <span className="text-xs text-gray-500">95%</span>
-                        </div>
-                      </td>
-                  </tr>
-              </tbody>
+            <thead className="bg-gray-50 text-gray-500 font-medium">
+              <tr>
+                <th className="px-4 py-3 rounded-l-lg">Item Name</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Predicted Qty</th>
+                <th className="px-4 py-3">Trend</th>
+                <th className="px-4 py-3">Confidence</th>
+                <th className="px-4 py-3 rounded-r-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              <tr className="hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">Vegetable Biryani</td>
+                <td className="px-4 py-3 text-gray-500">Lunch</td>
+                <td className="px-4 py-3">150 plates</td>
+                <td className="px-4 py-3 text-green-600">↑ High</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500" style={{ width: '92%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500">92%</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => alert('Recommendation accepted')} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Accept">
+                      <CheckCircle size={16} />
+                    </button>
+                    <button onClick={() => alert('Recommendation rejected')} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr className="hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">Paneer Butter Masala</td>
+                <td className="px-4 py-3 text-gray-500">Lunch</td>
+                <td className="px-4 py-3">80 plates</td>
+                <td className="px-4 py-3 text-gray-500">→ Stable</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500" style={{ width: '89%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500">89%</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => alert('Recommendation accepted')} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Accept">
+                      <CheckCircle size={16} />
+                    </button>
+                    <button onClick={() => alert('Recommendation rejected')} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr className="hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">Idli Sambar</td>
+                <td className="px-4 py-3 text-gray-500">Breakfast</td>
+                <td className="px-4 py-3">200 plates</td>
+                <td className="px-4 py-3 text-green-600">↑ High</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500" style={{ width: '95%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500">95%</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => alert('Recommendation accepted')} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Accept">
+                      <CheckCircle size={16} />
+                    </button>
+                    <button onClick={() => alert('Recommendation rejected')} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>

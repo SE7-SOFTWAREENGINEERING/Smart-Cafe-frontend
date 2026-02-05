@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-<<<<<<< HEAD
 import { Calendar, Clock, Save, Coffee, Smartphone, UserCheck, AlertCircle } from 'lucide-react';
-=======
-import { Calendar, Clock, Save, Coffee } from 'lucide-react';
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
 import Button from '../../components/common/Button';
 import { cn } from '../../utils/cn';
 
@@ -18,13 +14,9 @@ const AdminTimings: React.FC = () => {
     isHoliday: false
   })));
 
-<<<<<<< HEAD
   // New Service Mode State
   const [onlineBookingEnabled, setOnlineBookingEnabled] = useState(true);
   const [walkInEnabled, setWalkInEnabled] = useState(true);
-
-=======
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
   const handleToggleHoliday = (index: number) => {
     const newSchedule = [...schedule];
     newSchedule[index].isHoliday = !newSchedule[index].isHoliday;
@@ -41,13 +33,8 @@ const AdminTimings: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-<<<<<<< HEAD
           <h1 className="text-2xl font-bold text-gray-900">Timings & Service Controls</h1>
           <p className="text-sm text-gray-500 mt-1">Configure operating hours and service availability.</p>
-=======
-          <h1 className="text-2xl font-bold text-gray-900">Timings & Holidays</h1>
-          <p className="text-sm text-gray-500 mt-1">Configure cafeteria operating hours.</p>
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
         </div>
         <Button>
           <Save size={16} className="mr-2" />
@@ -55,7 +42,7 @@ const AdminTimings: React.FC = () => {
         </Button>
       </div>
 
-<<<<<<< HEAD
+
       {/* Slot Configuration (New) */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
         <div>
@@ -152,16 +139,7 @@ const AdminTimings: React.FC = () => {
           )}
         </div>
 
-=======
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-           <div className="bg-blue-50 p-2 rounded-full text-blue-600">
-             <Calendar size={20} />
-           </div>
-           <h3 className="font-semibold text-gray-900">Weekly Schedule</h3>
-        </div>
-        
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
+
         <div className="divide-y divide-gray-100">
           {schedule.map((slot, index) => (
             <div key={slot.day} className={cn("p-4 flex items-center justify-between hover:bg-gray-50 transition-colors", slot.isHoliday && "bg-gray-50")}>
@@ -176,13 +154,8 @@ const AdminTimings: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-gray-400" />
-<<<<<<< HEAD
                     <input
                       type="time"
-=======
-                    <input 
-                      type="time" 
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
                       value={slot.openTime}
                       onChange={(e) => handleChangeTime(index, 'openTime', e.target.value)}
                       className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -190,13 +163,8 @@ const AdminTimings: React.FC = () => {
                   </div>
                   <span className="text-gray-400 text-sm">to</span>
                   <div className="flex items-center gap-2">
-<<<<<<< HEAD
                     <input
                       type="time"
-=======
-                    <input 
-                      type="time" 
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
                       value={slot.closeTime}
                       onChange={(e) => handleChangeTime(index, 'closeTime', e.target.value)}
                       className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -210,7 +178,6 @@ const AdminTimings: React.FC = () => {
               )}
 
               <div className="w-32 flex justify-end">
-<<<<<<< HEAD
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -219,22 +186,13 @@ const AdminTimings: React.FC = () => {
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-=======
-                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={!slot.isHoliday} 
-                    onChange={() => handleToggleHoliday(index)}
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
->>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
                   <span className="ml-3 text-sm font-medium text-gray-600 text-xs w-10">{!slot.isHoliday ? 'Open' : 'Closed'}</span>
                 </label>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );

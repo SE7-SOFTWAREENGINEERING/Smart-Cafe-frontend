@@ -29,6 +29,7 @@ const AdminTimings = React.lazy(() => import('./admin/timings/page'));
 const AdminCapacity = React.lazy(() => import('./admin/capacity/page'));
 const AdminAccuracy = React.lazy(() => import('./admin/accuracy/page'));
 const AdminSystem = React.lazy(() => import('./admin/system/page'));
+const AdminSettings = React.lazy(() => import('./admin/settings/page'));
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/admin/capacity" element={<AdminCapacity />} />
                 <Route path="/admin/accuracy" element={<AdminAccuracy />} />
                 <Route path="/admin/system" element={<AdminSystem />} />
+                <Route path="/admin/settings" element={<AdminSettings />} />
               </Route>
             </Route>
 

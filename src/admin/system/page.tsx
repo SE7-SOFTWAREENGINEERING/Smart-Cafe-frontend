@@ -30,6 +30,7 @@ const AdminSystem: React.FC = () => {
   const [isBackupRunning, setIsBackupRunning] = useState(false);
   const [autoBackupEnabled, setAutoBackupEnabled] = useState(true);
   const [systemActive, setSystemActive] = useState(true);
+  const [logsFilter, setLogsFilter] = useState('All');
 
   const handleBackup = () => {
     setIsBackupRunning(true);
@@ -149,9 +150,27 @@ const AdminSystem: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 text-green-700">
-                        <CheckCircle size={14} className="text-green-500" /> Success
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-green-700">
+                          <CheckCircle size={14} className="text-green-500" /> Success
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="text-xs py-1 h-auto opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to restore this backup? Current data will be overwritten.')) {
+                              setIsBackupRunning(true);
+                              setTimeout(() => {
+                                setIsBackupRunning(false);
+                                alert(`System restored to backup from ${backup.date}`);
+                              }, 2000);
+                            }
+                          }}
+                        >
+                          Restore
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -163,22 +182,37 @@ const AdminSystem: React.FC = () => {
         {/* Sidebar Column: Audit Logs */}
         <div className="lg:col-span-1">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-6">
-              <History size={20} className="text-gray-500" />
-              Audit Log
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <History size={20} className="text-gray-500" />
+                Audit Log
+              </h3>
+              <div className="flex gap-2">
+                <select
+                  className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-gray-50 outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setLogsFilter(e.target.value)}
+                >
+                  <option value="All">All Users</option>
+                  <option value="System">System</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Manager">Manager</option>
+                </select>
+              </div>
+            </div>
 
             <div className="space-y-6">
-              {MOCK_AUDIT_LOGS.map((log) => (
-                <div key={log.id} className="relative pl-6 border-l-2 border-gray-100 last:border-0">
-                  <div className="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-gray-300"></div>
-                  <p className="text-sm font-medium text-gray-900">{log.action}</p>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-gray-500">{log.user}</span>
-                    <span className="text-xs text-gray-400">{log.time}</span>
+              {MOCK_AUDIT_LOGS
+                .filter(log => logsFilter === 'All' || log.user.includes(logsFilter))
+                .map((log) => (
+                  <div key={log.id} className="relative pl-6 border-l-2 border-gray-100 last:border-0">
+                    <div className="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-gray-300"></div>
+                    <p className="text-sm font-medium text-gray-900">{log.action}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-gray-500">{log.user}</span>
+                      <span className="text-xs text-gray-400">{log.time}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
 
             <div className="mt-8 pt-6 border-t border-gray-100">

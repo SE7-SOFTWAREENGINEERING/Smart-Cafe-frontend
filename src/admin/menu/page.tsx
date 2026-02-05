@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Filter, Edit2, Trash2, Leaf, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Leaf, CheckCircle, X } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { cn } from '../../utils/cn';
 import type { MenuItem } from '../../types';
@@ -20,6 +20,18 @@ const AdminMenu: React.FC = () => {
     // Form State
     const [formData, setFormData] = useState<Partial<MenuItem>>({
         name: '', price: 0, mealType: 'Lunch', dietaryType: 'Veg', allergens: [], ecoScore: 'B', portionSize: 'Regular', isAvailable: true
+    });
+
+    // Filter State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [mealFilter, setMealFilter] = useState('All');
+    const [dietaryFilter, setDietaryFilter] = useState('All');
+
+    const filteredItems = items.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesMeal = mealFilter === 'All' || item.mealType === mealFilter;
+        const matchesDiet = dietaryFilter === 'All' || item.dietaryType === dietaryFilter;
+        return matchesSearch && matchesMeal && matchesDiet;
     });
 
     const handleEdit = (item: MenuItem) => {
@@ -50,15 +62,7 @@ const AdminMenu: React.FC = () => {
         setFormData({ name: '', price: 0, mealType: 'Lunch', dietaryType: 'Veg', allergens: [], ecoScore: 'B', portionSize: 'Regular', isAvailable: true });
     };
 
-    const handleAllergenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        if (val.includes(',')) {
-            const newTags = val.split(',').map(s => s.trim()).filter(Boolean);
-            setFormData({ ...formData, allergens: newTags });
-        } else {
-            // Simple handling for demo: assume comma separated
-        }
-    };
+
 
     return (
         <div className="space-y-6">
@@ -71,6 +75,43 @@ const AdminMenu: React.FC = () => {
                     <Plus size={16} className="mr-2" />
                     Add Item
                 </Button>
+            </div>
+
+            {/* Search & Filters */}
+            <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search menu items..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="flex gap-4">
+                    <select
+                        value={mealFilter}
+                        onChange={(e) => setMealFilter(e.target.value)}
+                        className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                        <option value="All">All Meals</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Snacks">Snacks</option>
+                    </select>
+                    <select
+                        value={dietaryFilter}
+                        onChange={(e) => setDietaryFilter(e.target.value)}
+                        className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                        <option value="All">All Dietary</option>
+                        <option value="Veg">Veg</option>
+                        <option value="Non-Veg">Non-Veg</option>
+                        <option value="Vegan">Vegan</option>
+                        <option value="Jain">Jain</option>
+                    </select>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -86,7 +127,7 @@ const AdminMenu: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {items.map((item) => (
+                        {filteredItems.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 font-medium text-gray-900">
                                     {item.name}
