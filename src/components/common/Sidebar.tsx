@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../store/auth.store';
+<<<<<<< HEAD
 import {
   LayoutDashboard,
   Calendar,
@@ -15,6 +16,21 @@ import {
   BarChart,
   Settings,
   Database
+=======
+import { 
+  LayoutDashboard, 
+  Calendar, 
+  Users, 
+  Clock, 
+  Leaf, 
+  Bell, 
+  QrCode, 
+  UserPlus, 
+  Megaphone,
+  TrendingUp,
+  BarChart,
+  Settings
+>>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -48,6 +64,7 @@ const Sidebar: React.FC = () => {
       case 'admin':
         return [
           { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+<<<<<<< HEAD
           { to: '/admin/menu', label: 'Food Menu', icon: Leaf },
           { to: '/admin/bookings', label: 'Slot Operations', icon: Clock },
           { to: '/admin/roles', label: 'User Roles', icon: Users },
@@ -55,6 +72,12 @@ const Sidebar: React.FC = () => {
           { to: '/admin/capacity', label: 'Policies & Capacity', icon: Settings },
           { to: '/admin/accuracy', label: 'Forecast Accuracy', icon: BarChart },
           { to: '/admin/system', label: 'System Maintenance', icon: Database },
+=======
+          { to: '/admin/roles', label: 'User Roles', icon: Users },
+          { to: '/admin/timings', label: 'Timings & Holidays', icon: Calendar },
+          { to: '/admin/capacity', label: 'Capacity & Priority', icon: Settings },
+          { to: '/admin/accuracy', label: 'Forecast Accuracy', icon: BarChart },
+>>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
         ];
       default:
         return [];
@@ -73,8 +96,13 @@ const Sidebar: React.FC = () => {
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+<<<<<<< HEAD
                 isActive
                   ? "bg-blue-600 text-white"
+=======
+                isActive 
+                  ? "bg-blue-600 text-white" 
+>>>>>>> 56c300a93b26840b98a438e615f5fdf827779a16
                   : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
               )
             }
