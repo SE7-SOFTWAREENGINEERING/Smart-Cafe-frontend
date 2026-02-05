@@ -1,10 +1,14 @@
-import React from 'react';
-import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  AlertTriangle, CheckCircle, Info, BellRing,
+  Megaphone, XCircle, ArrowLeft
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 
 interface Notification {
   id: number;
-  type: 'success' | 'warning' | 'info';
+  type: 'success' | 'warning' | 'info' | 'urgent';
   title: string;
   message: string;
   time: string;
@@ -14,80 +18,158 @@ interface Notification {
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: 1,
-    type: 'success',
-    title: 'Booking Confirmed',
-    message: 'Your slot for Lunch at 12:30 PM is confirmed. Token: A-24',
-    time: '10 mins ago',
+    type: 'info',
+    title: 'Slot Reminder',
+    message: 'Hurry! Your booked slot at Sopanam starts in 10 minutes.',
+    time: 'Just now',
     isRead: false
   },
   {
     id: 2,
     type: 'warning',
     title: 'Queue Alert',
-    message: 'The queue for Counter 2 is moving slower than expected.',
+    message: 'High crowd detected at Prasada Canteen. Expect delays of 15-20 mins.',
+    time: '5 mins ago',
+    isRead: false
+  },
+  {
+    id: 3,
+    type: 'urgent',
+    title: 'Emergency Announcement',
+    message: 'Water supply interruption in Samudra block. Canteen closing at 2 PM today.',
+    time: '1 hour ago',
+    isRead: true
+  },
+  {
+    id: 4,
+    type: 'success',
+    title: 'Booking Confirmed',
+    message: 'Your slot for Lunch at 12:30 PM is confirmed. Token: A-24',
     time: '2 hours ago',
     isRead: true
   },
   {
-    id: 3,
-    type: 'info',
-    title: 'Menu Update',
-    message: 'New vegan options are available in the salad bar today.',
+    id: 5,
+    type: 'urgent',
+    title: 'Slot Expired',
+    message: 'You missed your slot at 11:00 AM. The token is no longer valid.',
     time: 'Yesterday',
     isRead: true
   }
 ];
 
 const StudentNotifications: React.FC = () => {
+  const navigate = useNavigate();
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+    <div className="pb-24 space-y-6">
+
+      {/* 1. Header with Push Toggle */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft size={24} className="text-gray-900" />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+        </div>
+
+        <div className="bg-blue-50 p-4 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+              <BellRing size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 text-sm">Push Notifications</h3>
+              <p className="text-xs text-gray-500">Get alerts for slots & emergency</p>
+            </div>
+          </div>
+          {/* Toggle Switch */}
+          <button
+            onClick={() => setPushEnabled(!pushEnabled)}
+            className={cn(
+              "w-12 h-6 rounded-full p-1 transition-colors relative",
+              pushEnabled ? "bg-blue-600" : "bg-gray-300"
+            )}
+          >
+            <div className={cn(
+              "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
+              pushEnabled ? "translate-x-6" : "translate-x-0"
+            )}></div>
+          </button>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center -mt-2">
+        <h2 className="font-bold text-gray-900">Recent Updates</h2>
+        <button
+          onClick={markAllRead}
+          className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+        >
           Mark all as read
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="divide-y divide-gray-100">
-          {MOCK_NOTIFICATIONS.map((notif) => (
-            <div 
-              key={notif.id} 
-              className={cn(
-                "p-4 flex gap-4 transition-colors hover:bg-gray-50",
-                !notif.isRead ? "bg-blue-50/50" : "bg-white"
-              )}
-            >
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                notif.type === 'success' ? "bg-green-100 text-green-600" :
+      {/* 2. Notification List */}
+      <div className="space-y-3">
+        {notifications.map((notif) => (
+          <div
+            key={notif.id}
+            className={cn(
+              "p-4 rounded-xl border flex gap-4 transition-all",
+              !notif.isRead ? "bg-white border-blue-200 shadow-sm" : "bg-gray-50 border-gray-100 opacity-90"
+            )}
+          >
+            <div className={cn(
+              "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+              notif.type === 'success' ? "bg-green-100 text-green-600" :
                 notif.type === 'warning' ? "bg-orange-100 text-orange-600" :
-                "bg-blue-100 text-blue-600"
-              )}>
-                {notif.type === 'success' && <CheckCircle size={20} />}
-                {notif.type === 'warning' && <AlertTriangle size={20} />}
-                {notif.type === 'info' && <Info size={20} />}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <h4 className={cn("font-medium text-sm", !notif.isRead ? "text-gray-900" : "text-gray-700")}>
-                    {notif.title}
-                  </h4>
-                  <span className="text-xs text-gray-400 whitespace-nowrap ml-2">{notif.time}</span>
-                </div>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                  {notif.message}
-                </p>
-              </div>
-              
-              {!notif.isRead && (
-                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-              )}
+                  notif.type === 'urgent' ? "bg-red-100 text-red-600" :
+                    "bg-blue-100 text-blue-600"
+            )}>
+              {notif.type === 'success' && <CheckCircle size={20} />}
+              {notif.type === 'warning' && <AlertTriangle size={20} />}
+              {notif.type === 'urgent' && <XCircle size={20} />}
+              {notif.type === 'info' && <Info size={20} />}
             </div>
-          ))}
-        </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start">
+                <h4 className={cn(
+                  "font-bold text-sm truncate pr-2",
+                  notif.type === 'urgent' ? "text-red-700" :
+                    !notif.isRead ? "text-gray-900" : "text-gray-700"
+                )}>
+                  {notif.title}
+                </h4>
+                <span className="text-[10px] text-gray-400 whitespace-nowrap">{notif.time}</span>
+              </div>
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                {notif.message}
+              </p>
+            </div>
+
+            {!notif.isRead && (
+              <div className="w-2 h-2 bg-blue-500 rounded-full mt-1 shrink-0"></div>
+            )}
+          </div>
+        ))}
       </div>
+
+      {/* Emergency Broadcast Mock */}
+      <div className="mt-8 p-4 bg-gray-900 rounded-xl text-center text-gray-400 text-xs">
+        <Megaphone className="mx-auto mb-2 opacity-50" size={20} />
+        <p>Emergency broadcasts are sent directly by Admin.</p>
+      </div>
+
     </div>
   );
 };

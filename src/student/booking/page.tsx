@@ -1,20 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
 import {
-  Info, Search, Leaf, AlertTriangle, Check
+  Search, Leaf, AlertTriangle, Check, ShoppingBag
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-// --- Types ---
-interface TimeSlot {
-  id: string;
-  time: string;
-  capacity: number;
-  booked: number;
-  status: 'available' | 'filling-fast' | 'full';
-}
+
 
 interface MenuItem {
   id: string;
@@ -29,12 +21,7 @@ interface MenuItem {
 }
 
 // --- Mock Data ---
-const MOCK_SLOTS: TimeSlot[] = [
-  { id: '1', time: '12:00 PM', capacity: 50, booked: 48, status: 'full' },
-  { id: '2', time: '12:15 PM', capacity: 50, booked: 42, status: 'filling-fast' },
-  { id: '3', time: '12:30 PM', capacity: 50, booked: 20, status: 'available' },
-  { id: '4', time: '12:45 PM', capacity: 50, booked: 10, status: 'available' },
-];
+
 
 const MENU_ITEMS: MenuItem[] = [
   { id: '1', name: 'Masala Dosa', price: { regular: 60 }, category: 'Breakfast', type: 'Veg', isJain: true, allergens: [], ecoScore: 85, imageColor: 'bg-orange-100' },
@@ -54,9 +41,7 @@ const StudentBooking: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<'Breakfast' | 'Lunch' | 'Snacks'>('Lunch');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBooking, setIsBooking] = useState(false);
+
 
   // Handlers
   const toggleFilter = (filter: string) => {
@@ -65,21 +50,7 @@ const StudentBooking: React.FC = () => {
     );
   };
 
-  const handleSlotClick = (slot: TimeSlot) => {
-    if (slot.status === 'full') return;
-    setSelectedSlot(slot);
-    setIsModalOpen(true);
-  };
 
-  const confirmBooking = async () => {
-    if (!selectedSlot) return;
-    setIsBooking(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsBooking(false);
-    setIsModalOpen(false);
-    alert('Booking Confirmed for ' + selectedSlot.time);
-    setSelectedSlot(null);
-  };
 
   // Filter Logic
   const filteredItems = MENU_ITEMS.filter(item => {
@@ -100,9 +71,14 @@ const StudentBooking: React.FC = () => {
 
       {/* 1. Header & Controls */}
       <section className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Food Menu</h1>
-          <p className="text-sm text-gray-500">Ordering from {canteenId === 'c1' ? 'Sopanam' : canteenId === 'c2' ? 'Prasada' : 'Samudra'}</p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Food Menu</h1>
+            <p className="text-sm text-gray-500">Ordering from {canteenId === 'c1' ? 'Sopanam' : canteenId === 'c2' ? 'Prasada' : 'Samudra'}</p>
+          </div>
+          <Link to="/student/cart" className="p-2 bg-gray-100 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <ShoppingBag size={20} />
+          </Link>
         </div>
 
         {/* Search Bar */}
@@ -220,58 +196,7 @@ const StudentBooking: React.FC = () => {
         )}
       </section>
 
-      {/* 3. Slot Booking Section */}
-      <section className="pt-6 border-t border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Book a Slot</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {MOCK_SLOTS.map(slot => (
-            <button
-              key={slot.id}
-              disabled={slot.status === 'full'}
-              onClick={() => handleSlotClick(slot)}
-              className={cn(
-                "p-3 rounded-xl border text-center transition-all",
-                selectedSlot?.id === slot.id ? "ring-2 ring-blue-500 border-blue-500" : "border-gray-200",
-                slot.status === 'full' ? "bg-gray-50 opacity-50" : "bg-white hover:border-blue-300"
-              )}
-            >
-              <span className="block text-sm font-bold text-gray-900">{slot.time}</span>
-              <span className={cn(
-                "text-xs font-medium",
-                slot.status === 'full' ? "text-red-500" : slot.status === 'filling-fast' ? "text-orange-500" : "text-green-600"
-              )}>
-                {slot.status === 'full' ? 'Full' : slot.status === 'filling-fast' ? 'Filling Fast' : 'Available'}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
 
-      {/* Booking Modal */}
-      {selectedSlot && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Confirm Booking"
-          footer={
-            <div className="flex gap-3 justify-end">
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-              <Button onClick={confirmBooking} isLoading={isBooking}>Confirm</Button>
-            </div>
-          }
-        >
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-gray-500">Booking slot for</p>
-              <h3 className="text-2xl font-bold text-gray-900">{selectedSlot.time}</h3>
-            </div>
-            <div className="bg-blue-50 p-3 rounded-lg flex gap-3 text-sm text-blue-800">
-              <Info size={16} className="shrink-0 mt-0.5" />
-              <p>Items added to your cart will be pre-prepared for this slot.</p>
-            </div>
-          </div>
-        </Modal>
-      )}
 
     </div>
   );

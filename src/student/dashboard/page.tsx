@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Clock, QrCode, Bell, ChevronRight,
-  Calendar, Coffee, MapPin
+  Calendar, Coffee, MapPin, ShoppingBag
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 
@@ -36,12 +36,17 @@ const StudentDashboard: React.FC = () => {
             <span className="text-sm font-medium">{mealTime}</span>
           </div>
         </div>
-        <Link to="/student/notifications" className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-          <Bell size={20} className="text-gray-700" />
-          {notifications.some(n => n.urgent) && (
-            <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
-          )}
-        </Link>
+        <div className="flex gap-3">
+          <Link to="/student/cart" className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+            <ShoppingBag size={20} className="text-gray-700" />
+          </Link>
+          <Link to="/student/notifications" className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+            <Bell size={20} className="text-gray-700" />
+            {notifications.some(n => n.urgent) && (
+              <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
+            )}
+          </Link>
+        </div>
       </header>
 
       {/* 2. Today's Booking Status */}
