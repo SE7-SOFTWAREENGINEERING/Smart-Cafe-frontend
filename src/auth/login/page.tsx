@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../store/auth.store';
 import Button from '../../components/common/Button';
 import { AlertCircle, Coffee } from 'lucide-react';
@@ -92,6 +92,11 @@ const LoginPage: React.FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               placeholder="••••••••"
             />
+            <div className="flex justify-end mt-1">
+              <Link to="/auth/forgot-password" className="text-xs text-blue-600 hover:text-blue-800 hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           <Button

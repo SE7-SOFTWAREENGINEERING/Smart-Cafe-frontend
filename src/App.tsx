@@ -1,10 +1,15 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './store/auth.store';
 import Layout from './layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LoginPage from './auth/login/page';
 import Loader from './components/common/Loader';
+
+const ForgotPasswordPage = React.lazy(() => import('./auth/forgot-password/page'));
+const VerifyOtpPage = React.lazy(() => import('./auth/verify-otp/page'));
+const ResetPasswordPage = React.lazy(() => import('./auth/reset-password/page'));
 
 // Lazy load pages for better performance
 const StudentDashboard = React.lazy(() => import('./student/dashboard/page'));
@@ -42,8 +47,12 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader /></div>}>
+          <Toaster position="top-right" />
           <Routes>
             <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/auth/verify-otp" element={<VerifyOtpPage />} />
+            <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
             <Route element={<Layout />}>
               {/* Student Routes */}
