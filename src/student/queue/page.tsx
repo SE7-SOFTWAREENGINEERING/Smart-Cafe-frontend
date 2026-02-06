@@ -77,7 +77,7 @@ const StudentQueue: React.FC = () => {
               <Clock size={16} />
               <span className="text-xs font-bold">WAIT</span>
             </div>
-            <p className="text-xl font-bold text-blue-600">~{Math.ceil(waitTime)}m</p>
+            <p className="text-xl font-bold text-brand">~{Math.ceil(waitTime)}m</p>
           </div>
         </div>
       </div>
@@ -102,11 +102,11 @@ const StudentQueue: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex gap-3">
-          <Coffee size={20} className="text-blue-600 shrink-0 mt-0.5" />
+        <div className="bg-brand-light border border-brand/20 p-4 rounded-xl flex gap-3">
+          <Coffee size={20} className="text-brand shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-blue-900 font-bold mb-1">While you wait...</p>
-            <p className="text-xs text-blue-700 leading-relaxed">
+            <p className="text-sm text-brand font-bold mb-1">While you wait...</p>
+            <p className="text-xs text-brand leading-relaxed">
               Check out the new dessert menu! You can add items to your existing order until 5 mins before pickup.
             </p>
           </div>

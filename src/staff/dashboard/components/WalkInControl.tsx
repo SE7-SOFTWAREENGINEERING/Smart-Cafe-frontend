@@ -30,7 +30,7 @@ const WalkInControl: React.FC = () => {
              <button 
                onClick={() => !capacityFull && setWalkIns(walkIns + 1)}
                disabled={capacityFull}
-               className={`p-2 rounded-lg transition text-white ${capacityFull ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+               className={`p-2 rounded-lg transition text-white ${capacityFull ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand hover:bg-brand-hover'}`}
              >
                <UserPlus size={18} />
              </button>

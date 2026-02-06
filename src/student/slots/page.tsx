@@ -111,7 +111,7 @@ const StudentSlots: React.FC = () => {
                                 <span className={cn("font-bold text-lg", isFull ? "text-gray-400" : "text-gray-900")}>
                                     {slot.time}
                                 </span>
-                                {isSelected && <CheckCircle size={18} className="text-blue-600" />}
+                                {isSelected && <CheckCircle size={18} className="text-brand" />}
                                 {isFilling && !isSelected && <AlertTriangle size={16} className="text-orange-500" />}
                             </div>
 

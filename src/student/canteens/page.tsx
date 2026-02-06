@@ -104,7 +104,7 @@ const CanteenSelection: React.FC = () => {
                         </div>
 
                         <div className="ml-2">
-                            <button className="p-2 rounded-full bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                            <button className="p-2 rounded-full bg-gray-50 text-gray-400 group-hover:bg-brand-light group-hover:text-brand transition-colors">
                                 <ChevronRight size={20} />
                             </button>
                         </div>
@@ -112,8 +112,8 @@ const CanteenSelection: React.FC = () => {
                 ))}
             </div>
 
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
-                <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-brand-light border border-brand/20 rounded-xl p-4 flex gap-3">
+                <Info size={20} className="text-brand flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-blue-800">
                     <strong>Tip:</strong> Check the crowd status before booking to avoid long wait times.
                 </p>

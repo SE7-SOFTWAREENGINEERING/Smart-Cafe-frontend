@@ -12,6 +12,7 @@ export default {
         brand: {
           DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
           hover: 'rgb(var(--color-primary-hover) / <alpha-value>)',
+          light: 'rgb(var(--color-primary-light) / <alpha-value>)',
           secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
         },
         // Semantic overrides

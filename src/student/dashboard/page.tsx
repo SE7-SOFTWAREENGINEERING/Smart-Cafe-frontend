@@ -61,22 +61,22 @@ const StudentDashboard: React.FC = () => {
         </div>
 
         {hasBooking ? (
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div className="bg-gradient-to-br from-brand to-brand-hover rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
             {/* Decorative circles */}
             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
             <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
 
             <div className="relative z-10 flex justify-between items-center">
               <div>
-                <p className="text-blue-100 text-xs font-medium uppercase tracking-wider mb-1">Token Number</p>
+                <p className="text-white/90 text-xs font-medium uppercase tracking-wider mb-1">Token Number</p>
                 <h3 className="text-4xl font-bold mb-4">{tokenDetails.tokenNo}</h3>
 
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-blue-100">
+                  <div className="flex items-center gap-2 text-sm text-white/90">
                     <Calendar size={16} />
                     <span>Today, {tokenDetails.slot}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-100">
+                  <div className="flex items-center gap-2 text-sm text-white/90">
                     <MapPin size={16} />
                     <span>Main Cafeteria</span>
                   </div>
@@ -88,8 +88,8 @@ const StudentDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-blue-500/30">
-              <p className="text-xs text-blue-200 truncate">
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="text-xs text-blue-100 truncate">
                 Items: {tokenDetails.items.join(", ")}
               </p>
             </div>
@@ -112,7 +112,7 @@ const StudentDashboard: React.FC = () => {
       <section>
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-bold text-gray-900">Select Canteen</h2>
-          <Link to="/student/queue" className="text-sm font-medium text-blue-600 hover:text-blue-700">View Queues</Link>
+          <Link to="/student/queue" className="text-sm font-medium text-brand hover:text-brand-hover">View Queues</Link>
         </div>
 
         <div className="space-y-3">
@@ -148,16 +148,16 @@ const StudentDashboard: React.FC = () => {
 
           {/* Samudra */}
           <Link to="/student/booking?canteenId=c3" className="block bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 group-hover:bg-blue-100 transition-colors"></div>
-            <div className="relative flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">S</div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-light rounded-full -mr-8 -mt-8 group-hover:bg-brand/20 transition-colors"></div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-brand-light text-brand flex items-center justify-center font-bold text-lg">S</div>
                 <div>
                   <h3 className="font-bold text-gray-900">Samudra</h3>
                   <p className="text-xs text-red-500 font-medium mt-0.5">Closing Soon • Low Crowd</p>
                 </div>
               </div>
-              <ChevronRight size={20} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+              <ChevronRight size={20} className="text-gray-300 group-hover:text-brand transition-colors" />
             </div>
           </Link>
         </div>
@@ -167,12 +167,12 @@ const StudentDashboard: React.FC = () => {
       <section>
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-bold text-gray-900">Recent Updates</h2>
-          <Link to="/student/notifications" className="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</Link>
+          <Link to="/student/notifications" className="text-xs font-semibold text-brand hover:text-brand-hover">View All</Link>
         </div>
         <div className="space-y-3">
           {notifications.map(notif => (
             <div key={notif.id} className={`p-4 rounded-xl border flex gap-3 ${notif.urgent ? "bg-red-50 border-red-100" : "bg-white border-gray-100 shadow-sm"}`}>
-              <div className={`mt-0.5 w-2 h-2 rounded-full ${notif.urgent ? "bg-red-500" : "bg-blue-500"}`}></div>
+              <div className={`mt-0.5 w-2 h-2 rounded-full ${notif.urgent ? "bg-red-500" : "bg-brand"}`}></div>
               <div className="flex-1">
                 <p className={`text-sm font-medium ${notif.urgent ? "text-red-900" : "text-gray-900"}`}>
                   {notif.text}

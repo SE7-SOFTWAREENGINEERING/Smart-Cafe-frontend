@@ -50,9 +50,9 @@ const StudentToken: React.FC = () => {
                 {/* Details */}
                 <div className="space-y-3 text-left">
                     <div className="flex items-center gap-3 text-gray-600">
-                        <Clock className="text-blue-500" size={18} />
-                        <span className="font-medium text-gray-900">{orderDetails.slot}</span>
-                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded"> today</span>
+                        <Clock className="text-brand" size={18} />
+                        <span className="text-lg font-bold text-gray-900">{orderDetails.slot}</span>
+                        <span className="text-xs bg-brand-light text-brand px-2 py-0.5 rounded"> today</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-600">
                         <MapPin className="text-red-500" size={18} />
@@ -62,14 +62,24 @@ const StudentToken: React.FC = () => {
                         <Calendar className="text-orange-500" size={18} />
                         <span>{orderDetails.date}</span>
                     </div>
+                    
+                    <div className="h-px bg-gray-100 my-4"></div>
+
+                    <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm text-gray-500">Token Number</span>
+                        <span className="text-sm text-gray-500">Wait Time</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-2xl font-mono font-bold text-gray-900 tracking-wider">A-24</span>
+                        <span className="text-lg font-bold text-brand">~15m</span>
+                    </div>
                 </div>
 
-                {/* Fairness Explanation */}
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-left flex gap-3">
-                    <Info size={18} className="text-blue-600 shrink-0 mt-0.5" />
+                <div className="bg-brand-light border border-brand/20 rounded-xl p-3 text-left flex gap-3">
+                    <Info size={18} className="text-brand shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-xs font-bold text-blue-800 uppercase tracking-wide mb-1">Why this slot?</p>
-                        <p className="text-xs text-blue-700 leading-relaxed">
+                        <p className="text-xs font-bold text-brand uppercase tracking-wide mb-1">Why this slot?</p>
+                        <p className="text-xs text-brand leading-relaxed">
                             {orderDetails.fairnessReason}
                         </p>
                     </div>

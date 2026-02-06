@@ -4,10 +4,14 @@
 
 @layer base {
   :root {
-    /* Brand Colors */
-    --color-primary: 37 99 235; /* Blue-600 */
-    --color-primary-hover: 29 78 216; /* Blue-700 */
-    --color-secondary: 79 70 229; /* Indigo-600 */
+    /* Brand Colors - Food Theme (Orange & Fresh Green) */
+    --color-primary: 234 88 12; /* Orange-600 */
+    --color-primary-hover: 194 65 12; /* Orange-700 */
+    --color-primary-light: 255 247 237; /* Orange-50 */
+    
+    --color-secondary: 101 163 13; /* Lime-600 */
+    --color-secondary-hover: 77 124 15; /* Lime-700 */
+    --color-secondary-light: 247 254 231; /* Lime-50 */
     
     /* Semantic Colors */
     --color-success: 22 163 74; /* Green-600 */

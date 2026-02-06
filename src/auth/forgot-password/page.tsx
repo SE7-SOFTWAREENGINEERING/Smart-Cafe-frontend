@@ -36,7 +36,7 @@ const ForgotPasswordPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border border-gray-100">
         <div className="text-center mb-8">
-           <div className="mx-auto w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+           <div className="mx-auto w-12 h-12 bg-brand-light text-brand rounded-full flex items-center justify-center mb-4">
              <Mail size={24} />
            </div>
            <h1 className="text-2xl font-bold text-gray-900">Forgot Password?</h1>
@@ -52,7 +52,7 @@ const ForgotPasswordPage: React.FC = () => {
                    id="email" 
                    value={email}
                    onChange={(e) => setEmail(e.target.value)}
-                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
                    placeholder="student@university.edu"
                    required
                  />

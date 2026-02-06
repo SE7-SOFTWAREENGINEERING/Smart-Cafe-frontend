@@ -56,8 +56,8 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-blue-100 p-3 rounded-full mb-4">
-            <Coffee className="h-8 w-8 text-blue-600" />
+          <div className="bg-brand-light p-3 rounded-full mb-4">
+            <Coffee className="h-8 w-8 text-brand" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to Smart Cafeteria</p>
@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
               placeholder="e.g. 21CS001 or student@college.edu"
             />
             <p className="text-xs text-gray-400 mt-1">Enter your Roll Number or Official Email ID.</p>
@@ -89,11 +89,11 @@ const LoginPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
               placeholder="••••••••"
             />
             <div className="flex justify-end mt-1">
-              <Link to="/auth/forgot-password" className="text-xs text-blue-600 hover:text-blue-800 hover:underline">
+              <Link to="/auth/forgot-password" className="text-xs text-brand hover:text-brand-hover hover:underline">
                 Forgot Password?
               </Link>
             </div>

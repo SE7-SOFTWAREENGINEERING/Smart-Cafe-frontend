@@ -125,13 +125,13 @@ const StudentCart: React.FC = () => {
                 <>
                     {/* 3. Impact Summary */}
                     <section className="grid grid-cols-2 gap-4">
-                        <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                            <div className="flex items-center gap-2 text-blue-800 mb-2">
+                        <div className="bg-brand-light p-4 rounded-2xl border border-brand/20">
+                            <div className="flex items-center gap-2 text-brand mb-2">
                                 <Clock size={16} />
                                 <span className="text-xs font-bold uppercase tracking-wider">Est. Time</span>
                             </div>
-                            <p className="text-2xl font-bold text-blue-900">{totalPrepTime} mins</p>
-                            <p className="text-xs text-blue-600 mt-1">Preparation time</p>
+                            <p className="text-2xl font-bold text-brand-hover">{totalPrepTime} mins</p>
+                            <p className="text-xs text-brand mt-1">Preparation time</p>
                         </div>
 
                         <div className={cn(

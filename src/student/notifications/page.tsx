@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  AlertTriangle, CheckCircle, Info, BellRing,
+  AlertTriangle, CheckCircle, Info, Bell,
   Megaphone, XCircle, ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -82,28 +82,25 @@ const StudentNotifications: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
         </div>
 
-        <div className="bg-blue-50 p-4 rounded-xl flex items-center justify-between">
+        <div className="bg-brand-light p-4 rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-              <BellRing size={20} />
+            <div className="w-10 h-10 bg-brand/10 text-brand rounded-full flex items-center justify-center">
+              <Bell size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-sm">Push Notifications</h3>
-              <p className="text-xs text-gray-500">Get alerts for slots & emergency</p>
+              <p className="font-bold text-gray-900">Push Notifications</p>
+              <p className="text-xs text-gray-500">Get updates about your order</p>
             </div>
           </div>
-          {/* Toggle Switch */}
           <button
             onClick={() => setPushEnabled(!pushEnabled)}
-            className={cn(
-              "w-12 h-6 rounded-full p-1 transition-colors relative",
-              pushEnabled ? "bg-blue-600" : "bg-gray-300"
-            )}
+            className={`w-12 h-6 rounded-full transition-colors relative ${
+              pushEnabled ? "bg-brand" : "bg-gray-300"
+            }`}
           >
-            <div className={cn(
-              "w-4 h-4 bg-white rounded-full shadow-sm transition-transform",
-              pushEnabled ? "translate-x-6" : "translate-x-0"
-            )}></div>
+            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+              pushEnabled ? "left-7" : "left-1"
+            }`}></div>
           </button>
         </div>
       </div>
@@ -112,7 +109,7 @@ const StudentNotifications: React.FC = () => {
         <h2 className="font-bold text-gray-900">Recent Updates</h2>
         <button
           onClick={markAllRead}
-          className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+          className="text-xs text-brand hover:text-brand-hover font-medium"
         >
           Mark all as read
         </button>
@@ -125,7 +122,7 @@ const StudentNotifications: React.FC = () => {
             key={notif.id}
             className={cn(
               "p-4 rounded-xl border flex gap-4 transition-all",
-              !notif.isRead ? "bg-white border-blue-200 shadow-sm" : "bg-gray-50 border-gray-100 opacity-90"
+              !notif.isRead ? "bg-white border-brand/20 shadow-sm" : "bg-gray-50 border-gray-100 opacity-90"
             )}
           >
             <div className={cn(
@@ -133,7 +130,7 @@ const StudentNotifications: React.FC = () => {
               notif.type === 'success' ? "bg-green-100 text-green-600" :
                 notif.type === 'warning' ? "bg-orange-100 text-orange-600" :
                   notif.type === 'urgent' ? "bg-red-100 text-red-600" :
-                    "bg-blue-100 text-blue-600"
+                    "bg-brand/10 text-brand"
             )}>
               {notif.type === 'success' && <CheckCircle size={20} />}
               {notif.type === 'warning' && <AlertTriangle size={20} />}
@@ -158,7 +155,7 @@ const StudentNotifications: React.FC = () => {
             </div>
 
             {!notif.isRead && (
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-1 shrink-0"></div>
+              <div className="w-2 h-2 bg-brand rounded-full mt-1 shrink-0"></div>
             )}
           </div>
         ))}

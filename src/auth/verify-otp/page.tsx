@@ -89,7 +89,7 @@ const VerifyOtpPage: React.FC = () => {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-10 h-12 sm:w-12 sm:h-14 border border-gray-300 rounded-lg text-center text-xl font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-10 h-12 sm:w-12 sm:h-14 border border-gray-300 rounded-lg text-center text-xl font-bold focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
                 />
              ))}
            </div>
@@ -102,7 +102,7 @@ const VerifyOtpPage: React.FC = () => {
         </form>
 
         <div className="mt-6 text-center space-y-4">
-           <p className="text-xs text-gray-500">Didn't receive code? <button className="text-blue-600 font-medium hover:underline">Resend</button></p>
+           <p className="text-xs text-gray-500">Didn't receive code? <button className="text-brand font-medium hover:underline">Resend</button></p>
            
            <Link to="/auth/forgot-password" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition">
              <ArrowLeft size={16} /> Back to Email
