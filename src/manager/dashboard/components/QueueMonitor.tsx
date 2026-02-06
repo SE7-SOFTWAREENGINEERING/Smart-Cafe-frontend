@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Clock, AlertCircle, PlayCircle, PauseCircle, RefreshCw } from 'lucide-react';
+import { Users, AlertCircle, PlayCircle, PauseCircle, RefreshCw } from 'lucide-react';
 
 const QueueMonitor: React.FC = () => {
   const [isQueueActive, setIsQueueActive] = useState(true);
@@ -11,7 +11,7 @@ const QueueMonitor: React.FC = () => {
           <h3 className="text-gray-500 text-sm font-medium">Live Queue Status</h3>
           <div className="flex items-center gap-2 mt-2">
             <h2 className="text-3xl font-bold text-gray-900">42</h2>
-            <div className="flex items-center text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+            <div className="flex items-center text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
               <Users size={12} className="mr-1" />
               High Traffic
             </div>

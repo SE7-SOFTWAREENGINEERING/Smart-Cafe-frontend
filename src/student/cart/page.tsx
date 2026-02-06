@@ -136,24 +136,24 @@ const StudentCart: React.FC = () => {
 
                         <div className={cn(
                             "p-4 rounded-2xl border",
-                            avgEcoScore > 75 ? "bg-green-50 border-green-100" : "bg-orange-50 border-orange-100"
+                            avgEcoScore > 75 ? "bg-green-50 border-green-100" : "bg-amber-50 border-amber-100"
                         )}>
                             <div className={cn(
                                 "flex items-center gap-2 mb-2",
-                                avgEcoScore > 75 ? "text-green-800" : "text-orange-800"
+                                avgEcoScore > 75 ? "text-green-800" : "text-amber-800"
                             )}>
                                 <Leaf size={16} />
                                 <span className="text-xs font-bold uppercase tracking-wider">Eco Impact</span>
                             </div>
                             <p className={cn(
                                 "text-2xl font-bold",
-                                avgEcoScore > 75 ? "text-green-900" : "text-orange-900"
+                                avgEcoScore > 75 ? "text-green-900" : "text-amber-900"
                             )}>
                                 {avgEcoScore}/100
                             </p>
                             <p className={cn(
                                 "text-xs mt-1",
-                                avgEcoScore > 75 ? "text-green-600" : "text-orange-600"
+                                avgEcoScore > 75 ? "text-green-600" : "text-amber-600"
                             )}>
                                 {avgEcoScore > 75 ? "Great choice!" : "Could be better"}
                             </p>

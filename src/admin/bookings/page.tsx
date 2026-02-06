@@ -91,7 +91,7 @@ const AdminBookings: React.FC = () => {
                                         selectedSlot?.id === slot.id ? "ring-2 ring-blue-500 ring-offset-1" : "",
                                         slot.status === 'Cancelled' ? "bg-gray-100 border-gray-200 text-gray-400" :
                                             slot.status === 'Full' ? "bg-red-50 border-red-100 text-red-700" :
-                                                slot.status === 'FastFilling' ? "bg-orange-50 border-orange-100 text-orange-700" :
+                                                slot.status === 'FastFilling' ? "bg-amber-50 border-amber-100 text-amber-700" :
                                                     "bg-green-50 border-green-100 text-green-700"
                                     )}
                                 >
@@ -110,7 +110,7 @@ const AdminBookings: React.FC = () => {
                                             <div
                                                 className={cn("h-full rounded-full",
                                                     slot.status === 'Full' ? "bg-red-500" :
-                                                        slot.status === 'FastFilling' ? "bg-orange-500" : "bg-green-500"
+                                                        slot.status === 'FastFilling' ? "bg-amber-500" : "bg-green-500"
                                                 )}
                                                 style={{ width: `${Math.min((slot.booked / slot.capacity) * 100, 100)}%` }}
                                             />
@@ -147,7 +147,7 @@ const AdminBookings: React.FC = () => {
                                         <Sliders size={16} className="mr-2" />
                                         Adjust Capacity
                                     </Button>
-                                    <Button className="w-full justify-start text-orange-600 border-orange-200 hover:bg-orange-50" variant="secondary" onClick={handleOverrideBooking}>
+                                    <Button className="w-full justify-start text-amber-600 border-amber-200 hover:bg-amber-50" variant="secondary" onClick={handleOverrideBooking}>
                                         <UserPlus size={16} className="mr-2" />
                                         Override & Add
                                     </Button>

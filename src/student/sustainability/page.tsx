@@ -68,7 +68,7 @@ const StudentSustainability: React.FC = () => {
         {/* Waste Reporting Form */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center gap-3 mb-6">
-            <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+            <div className="bg-amber-100 p-3 rounded-full text-amber-600">
               <Recycle size={24} />
             </div>
             <div>

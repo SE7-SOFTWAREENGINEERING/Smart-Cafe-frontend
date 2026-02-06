@@ -128,7 +128,7 @@ const StudentNotifications: React.FC = () => {
             <div className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
               notif.type === 'success' ? "bg-green-100 text-green-600" :
-                notif.type === 'warning' ? "bg-orange-100 text-orange-600" :
+                notif.type === 'warning' ? "bg-amber-100 text-amber-700" :
                   notif.type === 'urgent' ? "bg-red-100 text-red-600" :
                     "bg-brand/10 text-brand"
             )}>

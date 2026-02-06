@@ -14,7 +14,7 @@ const ActionLog: React.FC = () => {
       case 'serve': return <CheckCircle size={14} className="text-green-600" />;
       case 'walkin': return <UserPlus size={14} className="text-brand" />;
       case 'reject': return <XCircle size={14} className="text-red-600" />;
-      case 'skip': return <FastForward size={14} className="text-orange-600" />;
+      case 'skip': return <FastForward size={14} className="text-amber-600" />;
       default: return <History size={14} className="text-gray-400" />;
     }
   };

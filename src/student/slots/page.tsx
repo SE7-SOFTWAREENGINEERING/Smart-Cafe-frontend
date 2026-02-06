@@ -77,7 +77,7 @@ const StudentSlots: React.FC = () => {
                     <span className="text-gray-600">Available</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                     <span className="text-gray-600">Filling Fast</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -112,26 +112,23 @@ const StudentSlots: React.FC = () => {
                                     {slot.time}
                                 </span>
                                 {isSelected && <CheckCircle size={18} className="text-brand" />}
-                                {isFilling && !isSelected && <AlertTriangle size={16} className="text-orange-500" />}
+                                {isFilling && !isSelected && <AlertTriangle size={16} className="text-amber-500" />}
                             </div>
 
                             <div className="relative z-10">
-                                <div className="flex justify-between text-xs mb-1">
-                                    <span className="text-gray-500">Availability</span>
-                                    <span className={cn(
-                                        "font-medium",
-                                        isFull ? "text-red-500" : isFilling ? "text-orange-600" : "text-green-600"
-                                    )}>
-                                        {((slot.capacity - slot.booked) / slot.capacity * 100).toFixed(0)}%
-                                    </span>
-                                </div>
-
-                                {/* Progress Bar */}
-                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                    <div
+                                <p className={cn(
+                                    "text-xs font-medium mt-1 transition-colors",
+                                    isFull ? "text-red-500" : isFilling ? "text-amber-600" : "text-green-600"
+                                )}>
+                                    {isFull ? "Booked Out" : isFilling ? "Filling Fast" : "Available"}
+                                </p>
+                                
+                                {/* Progress bar */}
+                                <div className="mt-2 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <div 
                                         className={cn(
                                             "h-full rounded-full transition-all duration-500",
-                                            isFull ? "bg-red-300" : isFilling ? "bg-orange-400" : "bg-green-500"
+                                            isFull ? "bg-red-300" : isFilling ? "bg-amber-400" : "bg-green-500"
                                         )}
                                         style={{ width: `${(slot.booked / slot.capacity) * 100}%` }}
                                     ></div>

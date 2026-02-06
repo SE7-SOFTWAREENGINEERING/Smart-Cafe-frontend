@@ -55,7 +55,7 @@ const CanteenSelection: React.FC = () => {
     const getCrowdColor = (level: string) => {
         switch (level) {
             case 'Low': return 'text-green-600 bg-green-50';
-            case 'Medium': return 'text-orange-600 bg-orange-50';
+            case 'Medium': return 'text-amber-600 bg-amber-50';
             case 'High': return 'text-red-600 bg-red-50';
             default: return 'text-gray-600 bg-gray-50';
         }
