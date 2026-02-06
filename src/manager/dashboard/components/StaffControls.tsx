@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, UserPlus, Briefcase, MoreHorizontal } from 'lucide-react';
+import { UserPlus, Briefcase, MoreHorizontal } from 'lucide-react';
 
 const StaffControls: React.FC = () => {
   const staff = [
@@ -21,7 +21,7 @@ const StaffControls: React.FC = () => {
         {staff.map((member, idx) => (
           <div key={idx} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-brand-light flex items-center justify-center text-brand text-xs font-bold">
                 {member.name.charAt(0)}
               </div>
               <div>
@@ -31,7 +31,7 @@ const StaffControls: React.FC = () => {
             </div>
             <div className="text-right">
               <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
-                member.status === 'Active' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
+                member.status === 'Active' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
               }`}>
                 {member.status}
               </span>

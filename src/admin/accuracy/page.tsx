@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart, Settings, Sliders, ArrowRight, Check, Activity, Save } from 'lucide-react';
+import { BarChart, Settings, Sliders, Check, Activity, Save } from 'lucide-react';
 import Button from '../../components/common/Button';
 
 const AdminAccuracy: React.FC = () => {
@@ -65,7 +65,7 @@ const AdminAccuracy: React.FC = () => {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-            <Sliders size={20} className="text-blue-600" />
+            <Sliders size={20} className="text-brand" />
             Model Parameter Tuning
           </h3>
           <Button size="sm">
@@ -78,7 +78,7 @@ const AdminAccuracy: React.FC = () => {
           <div>
             <div className="flex justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">Weather Influence</label>
-              <span className="text-sm text-blue-600 font-bold">{weights.weather}%</span>
+              <span className="text-sm text-brand font-bold">{weights.weather}%</span>
             </div>
             <input
               type="range"
@@ -86,7 +86,7 @@ const AdminAccuracy: React.FC = () => {
               max="100"
               value={weights.weather}
               onChange={(e) => setWeights({ ...weights, weather: parseInt(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand"
             />
             <p className="text-xs text-gray-500 mt-2">Impact of rain/temp forecasts on demand.</p>
           </div>
@@ -94,7 +94,7 @@ const AdminAccuracy: React.FC = () => {
           <div>
             <div className="flex justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">Calendar Events</label>
-              <span className="text-sm text-blue-600 font-bold">{weights.calendar}%</span>
+              <span className="text-sm text-brand font-bold">{weights.calendar}%</span>
             </div>
             <input
               type="range"
@@ -102,7 +102,7 @@ const AdminAccuracy: React.FC = () => {
               max="100"
               value={weights.calendar}
               onChange={(e) => setWeights({ ...weights, calendar: parseInt(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand"
             />
             <p className="text-xs text-gray-500 mt-2">Weight of exams, holidays, and campus events.</p>
           </div>
@@ -110,7 +110,7 @@ const AdminAccuracy: React.FC = () => {
           <div>
             <div className="flex justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">Historical Trend</label>
-              <span className="text-sm text-blue-600 font-bold">{weights.sales}%</span>
+              <span className="text-sm text-brand font-bold">{weights.sales}%</span>
             </div>
             <input
               type="range"
@@ -118,7 +118,7 @@ const AdminAccuracy: React.FC = () => {
               max="100"
               value={weights.sales}
               onChange={(e) => setWeights({ ...weights, sales: parseInt(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand"
             />
             <p className="text-xs text-gray-500 mt-2">Reliance on past sales data (Rolling avg).</p>
           </div>
@@ -129,15 +129,15 @@ const AdminAccuracy: React.FC = () => {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-8">
           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-            <BarChart size={18} className="text-blue-600" />
+            <BarChart size={18} className="text-brand" />
             Predicted vs Actual Demand
           </h3>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-300"></span> Predicted
+              <span className="w-3 h-3 rounded-full bg-brand-light"></span> Predicted
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-600"></span> Actual
+              <span className="w-3 h-3 rounded-full bg-brand"></span> Actual
             </div>
           </div>
         </div>
@@ -148,12 +148,12 @@ const AdminAccuracy: React.FC = () => {
               <div className="w-full h-full flex items-end justify-center gap-1 relative">
                 {/* Predicted Bar */}
                 <div
-                  className="w-1/2 bg-blue-300 rounded-t-sm transition-all hover:opacity-80"
+                  className="w-1/2 bg-brand/30 rounded-t-sm transition-all hover:opacity-80"
                   style={{ height: `${(data.predicted / maxVal) * 100}%` }}
                 ></div>
                 {/* Actual Bar */}
                 <div
-                  className="w-1/2 bg-blue-600 rounded-t-sm transition-all hover:opacity-80"
+                  className="w-1/2 bg-brand rounded-t-sm transition-all hover:opacity-80"
                   style={{ height: `${(data.actual / maxVal) * 100}%` }}
                 ></div>
 
@@ -175,7 +175,7 @@ const AdminAccuracy: React.FC = () => {
         {/* Model Comparison */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-6">
-            <Settings size={20} className="text-blue-600" />
+            <Settings size={20} className="text-gray-600" />
             Model Comparison
           </h3>
 
@@ -191,8 +191,8 @@ const AdminAccuracy: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <tr className="bg-blue-50/50">
-                  <td className="px-4 py-3 font-medium text-blue-900">LSTM (v3.2)</td>
+                <tr className="bg-green-50/50">
+                  <td className="px-4 py-3 font-medium text-brand">LSTM (v3.2)</td>
                   <td className="px-4 py-3 text-green-600 font-bold">3.2%</td>
                   <td className="px-4 py-3">Slow</td>
                   <td className="px-4 py-3"><span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Active</span></td>
@@ -204,7 +204,7 @@ const AdminAccuracy: React.FC = () => {
                   <td className="px-4 py-3">Fast</td>
                   <td className="px-4 py-3"><span className="text-gray-400 text-xs">Sandbox</span></td>
                   <td className="px-4 py-3">
-                    <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">Details</button>
+                    <button className="text-gray-600 hover:text-gray-800 text-xs font-medium">Details</button>
                   </td>
                 </tr>
                 <tr>
@@ -213,7 +213,7 @@ const AdminAccuracy: React.FC = () => {
                   <td className="px-4 py-3">Medium</td>
                   <td className="px-4 py-3"><span className="text-gray-400 text-xs">Sandbox</span></td>
                   <td className="px-4 py-3">
-                    <button onClick={() => setActiveModel('Prophet')} className="text-blue-600 hover:text-blue-800 text-xs font-medium">Activate</button>
+                    <button onClick={() => setActiveModel('Prophet')} className="text-brand hover:text-brand-hover text-xs font-medium">Activate</button>
                   </td>
                 </tr>
               </tbody>

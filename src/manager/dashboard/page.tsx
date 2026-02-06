@@ -10,7 +10,7 @@ import NotificationCenter from './components/NotificationCenter';
 import SystemHealth from './components/SystemHealth';
 
 const ManagerDashboard: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState('Today, 12 Oct');
+  const [currentDate] = useState('Today, 12 Oct');
   const [currentSession, setCurrentSession] = useState('Lunch');
 
   return (

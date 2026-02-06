@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Check, FastForward, MoreVertical } from 'lucide-react';
+import { Check, FastForward, MoreVertical } from 'lucide-react';
 
 const QueueList: React.FC = () => {
   const queue = [
@@ -13,7 +13,7 @@ const QueueList: React.FC = () => {
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wider">Live Queue (FIFO)</h3>
-        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded font-medium">4 Pending</span>
+        <span className="text-xs bg-brand-light text-brand px-2 py-1 rounded font-medium">4 Pending</span>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
@@ -22,13 +22,13 @@ const QueueList: React.FC = () => {
             key={item.id} 
             className={`p-3 rounded-lg border flex items-center justify-between transition-all ${
               idx === 0 
-                ? 'bg-blue-50 border-blue-200 shadow-sm ring-1 ring-blue-100' 
+                ? 'bg-brand-light border-brand/20 shadow-sm ring-1 ring-brand/10' 
                 : 'bg-white border-gray-100 hover:border-gray-200'
             }`}
           >
             <div className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                idx === 0 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500'
+                idx === 0 ? 'bg-brand text-white' : 'bg-gray-100 text-gray-500'
               }`}>
                 {idx + 1}
               </div>
@@ -44,7 +44,7 @@ const QueueList: React.FC = () => {
                   <button className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" title="Mark Served">
                     <Check size={16} />
                   </button>
-                   <button className="p-2 bg-white border border-gray-200 text-gray-500 rounded-lg hover:text-orange-600 hover:border-orange-200 transition" title="Skip">
+                   <button className="p-2 bg-white border border-gray-200 text-gray-500 rounded-lg hover:text-amber-600 hover:border-amber-200 transition" title="Skip">
                     <FastForward size={16} />
                   </button>
                 </>

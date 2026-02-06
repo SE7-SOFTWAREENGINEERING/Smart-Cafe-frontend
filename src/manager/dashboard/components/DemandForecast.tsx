@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Sun, Calendar, Info, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, Sun, Calendar, Info, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 const DemandForecast: React.FC = () => {
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -19,7 +19,7 @@ const DemandForecast: React.FC = () => {
           <div className="bg-orange-50 text-orange-600 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 mb-1">
             <Sun size={12} /> Sunny (32°C)
           </div>
-          <div className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+          <div className="bg-brand-light text-brand px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
             <Calendar size={12} /> Exam Week
           </div>
         </div>
@@ -34,16 +34,16 @@ const DemandForecast: React.FC = () => {
       </div>
 
       {showAIRecommendation && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-4">
+        <div className="bg-brand-light border border-brand/20 rounded-lg p-3 mb-4">
           <div className="flex items-start gap-2">
-            <div className="mt-0.5 text-indigo-600"><Info size={16} /></div>
+            <div className="mt-0.5 text-brand"><Info size={16} /></div>
             <div className="flex-1">
-              <p className="text-xs font-medium text-indigo-900">AI Recommendation</p>
-              <p className="text-xs text-indigo-700 mt-0.5">Prepare 15% more North Indian Thali due to exam schedule.</p>
+              <p className="text-xs font-medium text-gray-900">AI Recommendation</p>
+              <p className="text-xs text-brand-hover mt-0.5">Prepare 15% more North Indian Thali due to exam schedule.</p>
               <div className="flex gap-2 mt-2">
                 <button 
                   onClick={() => setShowAIRecommendation(false)}
-                  className="bg-indigo-600 text-white text-xs px-2 py-1 rounded hover:bg-indigo-700 transition flex items-center gap-1"
+                  className="bg-brand text-white text-xs px-2 py-1 rounded hover:bg-brand-hover transition flex items-center gap-1"
                 >
                   <Check size={12} /> Accept
                 </button>
@@ -94,7 +94,7 @@ const DemandForecast: React.FC = () => {
               <div className="bg-red-500 h-full rounded-full" style={{ width: '25%' }}></div>
             </div>
             
-            <button className="text-xs text-blue-600 font-medium mt-2 hover:underline">
+            <button className="text-xs text-brand font-medium mt-2 hover:underline">
               View Item-wise Details &rarr;
             </button>
           </div>

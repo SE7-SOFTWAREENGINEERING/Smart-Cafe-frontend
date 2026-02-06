@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Scan, Search, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Scan, Search, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 
 const TokenScanner: React.FC = () => {
   const [tokenId, setTokenId] = useState('');
@@ -26,12 +26,12 @@ const TokenScanner: React.FC = () => {
               placeholder="Scan or Enter Token ID" 
               value={tokenId}
               onChange={(e) => setTokenId(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none font-mono text-lg uppercase"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none font-mono text-lg uppercase"
             />
           </div>
           <button 
             onClick={handleScan}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2"
+            className="bg-brand text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-hover transition flex items-center gap-2"
           >
             <Scan size={20} /> <span className="hidden md:inline">Scan</span>
           </button>
@@ -89,7 +89,7 @@ const TokenScanner: React.FC = () => {
               Token not found or invalid
             </p>
             <div className="mt-4">
-               <button onClick={() => setScanResult('idle')} className="text-sm text-blue-600 hover:underline">Try Again</button>
+               <button onClick={() => setScanResult('idle')} className="text-sm text-brand hover:underline">Try Again</button>
             </div>
           </div>
         )}

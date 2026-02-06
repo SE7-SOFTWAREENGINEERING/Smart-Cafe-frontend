@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Leaf, ChevronDown, CheckCircle, Package } from 'lucide-react';
+import { AlertTriangle, Leaf, CheckCircle, Package } from 'lucide-react';
 
 const FoodWasteControl: React.FC = () => {
   const [portionSize, setPortionSize] = useState<'Standard' | 'Small'>('Standard');
@@ -20,7 +20,7 @@ const FoodWasteControl: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-2 mb-6 text-sm text-gray-600">
-        <AlertTriangle size={16} className="text-yellow-500" />
+        <AlertTriangle size={16} className="text-amber-500" />
         <span>Expected variance: <span className="font-medium">~1.8%</span></span>
       </div>
 
