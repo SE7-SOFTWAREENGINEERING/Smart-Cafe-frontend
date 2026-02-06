@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors */
+    --color-primary: 37 99 235; /* Blue-600 */
+    --color-primary-hover: 29 78 216; /* Blue-700 */
+    --color-secondary: 79 70 229; /* Indigo-600 */
+    
+    /* Semantic Colors */
+    --color-success: 22 163 74; /* Green-600 */
+    --color-warning: 234 88 12; /* Orange-600 */
+    --color-error: 220 38 38; /* Red-600 */
+    
+    /* Backgrounds */
+    --color-bg-main: 249 250 251; /* Gray-50 */
+    --color-bg-card: 255 255 255; /* White */
+    
+    /* Text */
+    --color-text-main: 17 24 39; /* Gray-900 */
+    --color-text-muted: 107 114 128; /* Gray-500 */
+  }
+}
