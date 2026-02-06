@@ -1,63 +1,91 @@
-import React from 'react';
-import { TrendingUp, AlertTriangle, DollarSign, Utensils } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, RefreshCw, Clock } from 'lucide-react';
+import DemandForecast from './components/DemandForecast';
+import FoodWasteControl from './components/FoodWasteControl';
+import RevenueStats from './components/RevenueStats';
+import SlotManagement from './components/SlotManagement';
+import QueueMonitor from './components/QueueMonitor';
+import StaffControls from './components/StaffControls';
+import NotificationCenter from './components/NotificationCenter';
+import SystemHealth from './components/SystemHealth';
 
 const ManagerDashboard: React.FC = () => {
+  const [currentDate, setCurrentDate] = useState('Today, 12 Oct');
+  const [currentSession, setCurrentSession] = useState('Lunch');
+
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">Manager Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Operational Overview & Demand Analytics</p>
+      {/* Dashboard Header */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+           <h1 className="text-2xl font-bold text-gray-900">Manager Dashboard</h1>
+           <p className="text-sm text-gray-500 mt-1">Operational Overview & Real-time Analytics</p>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm text-sm text-gray-700">
+             <Calendar size={16} className="text-gray-400" />
+             <span className="font-medium">{currentDate}</span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm text-sm text-gray-700">
+             <Clock size={16} className="text-gray-400" />
+             <select 
+               value={currentSession}
+               onChange={(e) => setCurrentSession(e.target.value)}
+               className="bg-transparent border-none p-0 focus:ring-0 text-gray-800 font-medium cursor-pointer"
+             >
+               <option>Breakfast</option>
+               <option>Lunch</option>
+               <option>Snacks</option>
+               <option>Dinner</option>
+             </select>
+          </div>
+
+           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-100 text-green-700 font-medium text-sm">
+             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+             Open
+           </div>
+
+           <button className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
+             <RefreshCw size={18} />
+           </button>
+        </div>
       </header>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Predicted Demand Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-gray-500 text-sm font-medium">Predicted Demand</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">1,250 <span className="text-lg font-normal text-gray-500">Meals</span></p>
-            </div>
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
-              <Utensils size={24} />
-            </div>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-green-600 font-medium">
-            <TrendingUp size={16} />
-            <span>12% increase vs last week</span>
-          </div>
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Row 1: Demand & Waste (Sustainability) */}
+        <div className="lg:col-span-2">
+           <DemandForecast />
+        </div>
+        <div className="lg:col-span-1">
+           <FoodWasteControl />
         </div>
 
-        {/* Food Waste Risk Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-gray-500 text-sm font-medium">Food Waste Risk</h3>
-              <p className="text-3xl font-bold text-green-600 mt-2">Low</p>
-            </div>
-            <div className="p-3 bg-green-50 text-green-600 rounded-full">
-              <AlertTriangle size={24} />
-            </div>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-gray-400">
-            <span>~2% variance expected</span>
-          </div>
+        {/* Row 2: Operation Controls */}
+        <div className="lg:col-span-1">
+           <QueueMonitor />
+        </div>
+        <div className="lg:col-span-1">
+           <SlotManagement />
+        </div>
+        <div className="lg:col-span-1">
+           <RevenueStats />
         </div>
 
-        {/* Today's Revenue Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-gray-500 text-sm font-medium">Today's Revenue</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">₹ 45,200</p>
-            </div>
-            <div className="p-3 bg-purple-50 text-purple-600 rounded-full">
-              <DollarSign size={24} />
-            </div>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-gray-400">
-            <span>Daily average: ₹ 42,000</span>
-          </div>
+        {/* Row 3: Management & System */}
+        <div className="lg:col-span-1">
+           <StaffControls />
         </div>
+        <div className="lg:col-span-1">
+           <NotificationCenter />
+        </div>
+        <div className="lg:col-span-1">
+           <SystemHealth />
+        </div>
+
       </div>
     </div>
   );
