@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, ArrowRight, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Lock, ArrowRight, CheckCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,26 +66,44 @@ const ResetPasswordPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-              <input 
-                 type="password" 
-                 value={password}
-                 onChange={(e) => setPassword(e.target.value)}
-                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
-                 placeholder="••••••••"
-                 required
-              />
+              <div className="relative">
+                <input 
+                   type={showPassword ? "text" : "password"} 
+                   value={password}
+                   onChange={(e) => setPassword(e.target.value)}
+                   className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
+                   placeholder="••••••••"
+                   required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
            </div>
 
            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-              <input 
-                 type="password" 
-                 value={confirmPassword}
-                 onChange={(e) => setConfirmPassword(e.target.value)}
-                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
-                 placeholder="••••••••"
-                 required
-              />
+              <div className="relative">
+                <input 
+                   type={showConfirmPassword ? "text" : "password"} 
+                   value={confirmPassword}
+                   onChange={(e) => setConfirmPassword(e.target.value)}
+                   className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
+                   placeholder="••••••••"
+                   required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
            </div>
 
            {error && <p className="text-sm text-red-600 font-medium">{error}</p>}

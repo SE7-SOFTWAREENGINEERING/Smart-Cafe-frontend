@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../store/auth.store';
 import Button from '../../components/common/Button';
-import { AlertCircle, Coffee } from 'lucide-react';
+import { AlertCircle, Coffee, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login, isLoading, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -85,13 +86,22 @@ const LoginPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <div className="flex justify-end mt-1">
               <Link to="/auth/forgot-password" className="text-xs text-brand hover:text-brand-hover hover:underline">
                 Forgot Password?
