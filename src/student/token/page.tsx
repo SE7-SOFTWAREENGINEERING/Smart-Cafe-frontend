@@ -1,0 +1,99 @@
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Button from '../../components/common/Button';
+import {
+    CheckCircle, QrCode, Download, Home, Info,
+    MapPin, Clock, Calendar
+} from 'lucide-react';
+
+const StudentToken: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // In a real app, we'd fetch this from ID or state
+    const orderDetails = {
+        id: location.state?.orderId || '#ORD-9821',
+        slot: location.state?.slotTime || '12:30 PM',
+        canteen: 'Sopanam', // Default mock
+        date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+        items: location.state?.items || 3,
+        fairnessReason: "You booked 2 hours in advance, securing priority access over walk-ins."
+    };
+
+    return (
+        <div className="pb-24 min-h-screen bg-gray-50 p-6 flex flex-col items-center justify-center text-center">
+
+            <div className="bg-white p-6 rounded-3xl shadow-xl w-full max-w-sm space-y-6 relative overflow-hidden">
+                {/* Success Banner */}
+                <div className="absolute top-0 left-0 right-0 h-2 bg-green-500"></div>
+
+                <div className="space-y-2">
+                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-2 animate-bounce-short">
+                        <CheckCircle size={32} />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900">Booking Confirmed!</h1>
+                    <p className="text-gray-500 text-sm">Your items are being prepared.</p>
+                </div>
+
+                <div className="border-t border-b border-gray-100 py-6 space-y-4">
+                    {/* QR Code Placeholder */}
+                    <div className="bg-gray-900 text-white p-6 rounded-2xl inline-block shadow-lg">
+                        <QrCode size={120} />
+                    </div>
+                    <p className="text-xs font-mono text-gray-400">Scan at Counter</p>
+
+                    <div className="bg-gray-50 rounded-xl p-3 text-sm font-medium text-gray-700">
+                        Order ID: <span className="font-bold text-gray-900">{orderDetails.id}</span>
+                    </div>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-3 text-left">
+                    <div className="flex items-center gap-3 text-gray-600">
+                        <Clock className="text-blue-500" size={18} />
+                        <span className="font-medium text-gray-900">{orderDetails.slot}</span>
+                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded"> today</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-600">
+                        <MapPin className="text-red-500" size={18} />
+                        <span>{orderDetails.canteen} Canteen</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-600">
+                        <Calendar className="text-orange-500" size={18} />
+                        <span>{orderDetails.date}</span>
+                    </div>
+                </div>
+
+                {/* Fairness Explanation */}
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-left flex gap-3">
+                    <Info size={18} className="text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-xs font-bold text-blue-800 uppercase tracking-wide mb-1">Why this slot?</p>
+                        <p className="text-xs text-blue-700 leading-relaxed">
+                            {orderDetails.fairnessReason}
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Actions */}
+            <div className="w-full max-w-sm mt-8 space-y-3">
+                <Button variant="secondary" className="w-full flex justify-center items-center gap-2">
+                    <Download size={18} />
+                    Download Ticket
+                </Button>
+                <Button
+                    className="w-full flex justify-center items-center gap-2"
+                    onClick={() => navigate('/student/dashboard')}
+                >
+                    <Home size={18} />
+                    Back to Dashboard
+                </Button>
+            </div>
+
+        </div>
+    );
+};
+
+export default StudentToken;

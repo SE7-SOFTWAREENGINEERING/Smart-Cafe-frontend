@@ -1,164 +1,203 @@
 import React, { useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
-import { Info } from 'lucide-react';
+import {
+  Search, Leaf, AlertTriangle, Check, ShoppingBag
+} from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-interface TimeSlot {
+
+
+interface MenuItem {
   id: string;
-  time: string;
-  capacity: number;
-  booked: number;
-  status: 'available' | 'filling-fast' | 'full';
+  name: string;
+  price: { small?: number; regular: number };
+  category: 'Breakfast' | 'Lunch' | 'Snacks';
+  type: 'Veg' | 'Non-Veg' | 'Vegan';
+  isJain: boolean;
+  allergens: string[];
+  ecoScore: number; // 0-100
+  imageColor: string;
 }
 
-const MOCK_SLOTS: TimeSlot[] = [
-  { id: '1', time: '12:00 PM', capacity: 50, booked: 48, status: 'full' },
-  { id: '2', time: '12:15 PM', capacity: 50, booked: 42, status: 'filling-fast' },
-  { id: '3', time: '12:30 PM', capacity: 50, booked: 20, status: 'available' },
-  { id: '4', time: '12:45 PM', capacity: 50, booked: 10, status: 'available' },
-  { id: '5', time: '01:00 PM', capacity: 50, booked: 5, status: 'available' },
-  { id: '6', time: '01:15 PM', capacity: 50, booked: 0, status: 'available' },
+// --- Mock Data ---
+
+
+const MENU_ITEMS: MenuItem[] = [
+  { id: '1', name: 'Masala Dosa', price: { regular: 60 }, category: 'Breakfast', type: 'Veg', isJain: true, allergens: [], ecoScore: 85, imageColor: 'bg-orange-100' },
+  { id: '2', name: 'Idli Sambar', price: { small: 30, regular: 50 }, category: 'Breakfast', type: 'Veg', isJain: true, allergens: [], ecoScore: 90, imageColor: 'bg-gray-100' },
+  { id: '3', name: 'Chicken Biryani', price: { small: 120, regular: 180 }, category: 'Lunch', type: 'Non-Veg', isJain: false, allergens: [], ecoScore: 40, imageColor: 'bg-red-100' },
+  { id: '4', name: 'Veg Meals', price: { regular: 80 }, category: 'Lunch', type: 'Veg', isJain: true, allergens: ['Dairy'], ecoScore: 80, imageColor: 'bg-green-100' },
+  { id: '5', name: 'Paneer Butter Masala', price: { small: 90, regular: 150 }, category: 'Lunch', type: 'Veg', isJain: false, allergens: ['Dairy', 'Nuts'], ecoScore: 60, imageColor: 'bg-orange-50' },
+  { id: '6', name: 'Samosa', price: { regular: 20 }, category: 'Snacks', type: 'Veg', isJain: false, allergens: ['Gluten'], ecoScore: 75, imageColor: 'bg-yellow-100' },
+  { id: '7', name: 'Vegan Salad', price: { regular: 120 }, category: 'Lunch', type: 'Vegan', isJain: true, allergens: [], ecoScore: 95, imageColor: 'bg-green-50' },
 ];
 
 const StudentBooking: React.FC = () => {
-  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBooking, setIsBooking] = useState(false);
+  const [searchParams] = useSearchParams();
+  const canteenId = searchParams.get('canteenId') || 'c1';
 
-  const handleSlotClick = (slot: TimeSlot) => {
-    if (slot.status === 'full') return;
-    setSelectedSlot(slot);
-    setIsModalOpen(true);
+  // State
+  const [activeCategory, setActiveCategory] = useState<'Breakfast' | 'Lunch' | 'Snacks'>('Lunch');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+
+  // Handlers
+  const toggleFilter = (filter: string) => {
+    setActiveFilters(prev =>
+      prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
+    );
   };
 
-  const confirmBooking = async () => {
-    if (!selectedSlot) return;
-    setIsBooking(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsBooking(false);
-    setIsModalOpen(false);
-    alert('Booking Confirmed for ' + selectedSlot.time);
-    setSelectedSlot(null);
-  };
+
+
+  // Filter Logic
+  const filteredItems = MENU_ITEMS.filter(item => {
+    const matchesCategory = item.category === activeCategory;
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Complex Filters
+    const matchesVeg = activeFilters.includes('Veg') ? item.type === 'Veg' : true;
+    const matchesVegan = activeFilters.includes('Vegan') ? item.type === 'Vegan' : true;
+    const matchesJain = activeFilters.includes('Jain') ? item.isJain : true;
+    const matchesNutFree = activeFilters.includes('No Nuts') ? !item.allergens.includes('Nuts') : true;
+
+    return matchesCategory && matchesSearch && matchesVeg && matchesVegan && matchesJain && matchesNutFree;
+  });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Book a Slot</h1>
-          <p className="text-gray-500 text-sm mt-1">Select a time to skip the long queues.</p>
-        </div>
-      </div>
+    <div className="space-y-8 pb-20">
 
-      {/* Legend */}
-      <div className="flex gap-4 text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-100 shadow-sm w-fit">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-green-100 border border-green-300"></span> Available
+      {/* 1. Header & Controls */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Food Menu</h1>
+            <p className="text-sm text-gray-500">Ordering from {canteenId === 'c1' ? 'Sopanam' : canteenId === 'c2' ? 'Prasada' : 'Samudra'}</p>
+          </div>
+          <Link to="/student/cart" className="p-2 bg-gray-100 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <ShoppingBag size={20} />
+          </Link>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-orange-100 border border-orange-300"></span> Filling Fast
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-gray-100 border border-gray-300"></span> Full
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {MOCK_SLOTS.map((slot) => {
-          const isFull = slot.status === 'full';
-          const isFilling = slot.status === 'filling-fast';
-          
-          return (
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search food (e.g. Biryani)"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex p-1 bg-gray-100 rounded-xl overflow-x-auto">
+          {(['Breakfast', 'Lunch', 'Snacks'] as const).map((cat) => (
             <button
-              key={slot.id}
-              disabled={isFull}
-              onClick={() => handleSlotClick(slot)}
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
               className={cn(
-                "relative p-4 rounded-xl border text-left transition-all",
-                isFull 
-                  ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-70" 
-                  : isFilling
-                    ? "bg-orange-50 border-orange-200 hover:shadow-md hover:border-orange-300"
-                    : "bg-white border-green-200 hover:shadow-md hover:border-green-300"
+                "flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
+                activeCategory === cat ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"
               )}
             >
-              <div className="flex justify-between items-start mb-2">
-                <span className={cn(
-                  "font-bold text-lg",
-                  isFull ? "text-gray-500" : "text-gray-900"
-                )}>
-                  {slot.time}
-                </span>
-                {isFilling && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
-                    Fast
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex items-center justify-between text-xs mt-3">
-                <span className="text-gray-500">Capacity</span>
-                <span className={cn(
-                  "font-medium",
-                  isFull ? "text-red-500" : "text-gray-700"
-                )}>
-                  {slot.booked}/{slot.capacity}
-                </span>
-              </div>
-              
-              {/* Progress Bar */}
-              <div className="w-full h-1.5 bg-gray-200 rounded-full mt-1.5 overflow-hidden">
-                <div 
-                  className={cn(
-                    "h-full rounded-full",
-                    isFull ? "bg-gray-400" : isFilling ? "bg-orange-500" : "bg-green-500"
-                  )}
-                  style={{ width: `${(slot.booked / slot.capacity) * 100}%` }}
-                />
-              </div>
+              {cat}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      {selectedSlot && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Confirm Booking"
-          footer={
-            <div className="flex gap-3 justify-end">
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={confirmBooking} isLoading={isBooking}>
-                Confirm Slot
-              </Button>
-            </div>
-          }
-        >
-          <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg flex items-start gap-3">
-              <Info className="text-blue-600 shrink-0 mt-0.5" size={20} />
+        {/* Review: Filters */}
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {['Veg', 'Vegan', 'Jain', 'No Nuts'].map(filter => (
+            <button
+              key={filter}
+              onClick={() => toggleFilter(filter)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 whitespace-nowrap",
+                activeFilters.includes(filter)
+                  ? "bg-blue-50 border-blue-200 text-blue-700"
+                  : "bg-white border-gray-200 text-gray-600"
+              )}
+            >
+              {activeFilters.includes(filter) && <Check size={12} />}
+              {filter}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 2. Menu Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredItems.map(item => (
+          <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex gap-4">
+            {/* Image Placeholder */}
+            <Link to={`/student/item/${item.id}`} className={cn("w-24 h-24 rounded-xl flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity", item.imageColor)}></Link>
+
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-blue-900">Booking Rules</h4>
-                <ul className="text-xs text-blue-700 mt-1 space-y-1 list-disc pl-3">
-                  <li>Please arrive 5 minutes before your slot.</li>
-                  <li>Booking is valid for 15 minutes only.</li>
-                  <li>Missed slots affect your sustainability score.</li>
-                </ul>
+                <div className="flex justify-between items-start">
+                  <Link to={`/student/item/${item.id}`} className="font-bold text-gray-900 truncate hover:text-blue-600">{item.name}</Link>
+                  {/* Veg/Non-Veg Indicator */}
+                  <span className={cn(
+                    "w-4 h-4 border flex items-center justify-center flex-shrink-0",
+                    item.type === 'Non-Veg' ? "border-red-500" : "border-green-500"
+                  )}>
+                    <span className={cn(
+                      "w-2 h-2 rounded-full",
+                      item.type === 'Non-Veg' ? "bg-red-500" : "bg-green-500"
+                    )}></span>
+                  </span>
+                </div>
+
+                {/* Metadata */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {item.ecoScore > 80 && (
+                    <span className="text-[10px] font-bold bg-green-50 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <Leaf size={8} /> Eco
+                    </span>
+                  )}
+                  {item.allergens.map(alg => (
+                    <span key={alg} className="text-[10px] font-bold bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <AlertTriangle size={8} /> {alg}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-            
-            <div className="text-center py-4">
-              <p className="text-gray-500">You are booking a slot for</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{selectedSlot.time}</p>
+
+              <div className="flex items-end justify-between mt-3">
+                <div>
+                  <p className="text-lg font-bold text-gray-900">₹{item.price.regular}</p>
+                  {item.price.small && (
+                    <p className="text-xs text-gray-400">Sm: ₹{item.price.small}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* Portion Selector (Mock) */}
+                  {item.price.small && (
+                    <select className="text-xs bg-gray-50 border-gray-200 rounded p-1 outline-none">
+                      <option>Reg</option>
+                      <option>Sml</option>
+                    </select>
+                  )}
+                  <Button size="sm" className="h-8 px-3 text-xs">Add</Button>
+                </div>
+              </div>
             </div>
           </div>
-        </Modal>
-      )}
+        ))}
+        {filteredItems.length === 0 && (
+          <div className="col-span-full text-center py-10 text-gray-400">
+            No items found matching your filters.
+          </div>
+        )}
+      </section>
+
+
+
     </div>
   );
 };
