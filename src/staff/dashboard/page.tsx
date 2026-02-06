@@ -1,87 +1,76 @@
 import React from 'react';
-import { Users, ClipboardList, AlertCircle } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { LogOut, User } from 'lucide-react';
+import QueueList from './components/QueueList';
+import WalkInControl from './components/WalkInControl';
+import StaffAnnouncements from './components/StaffAnnouncements';
+import ActionLog from './components/ActionLog';
 
 const StaffDashboard: React.FC = () => {
-  // Mock data
-  const occupancy = 85; // percentage
-  const totalSeats = 140;
-  const occupiedSeats = 120;
-  const pendingTokens = 24;
-  const nextToken = 'A-405';
-
-  // Determine color based on occupancy
-  const getOccupancyColor = (value: number) => {
-    if (value >= 90) return 'text-red-600 bg-red-50';
-    if (value >= 70) return 'text-orange-600 bg-orange-50';
-    return 'text-green-600 bg-green-50';
-  };
-
-  const occupancyStyle = getOccupancyColor(occupancy);
+  const occupancy = 85; 
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">Staff Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Real-time operational overview.</p>
-      </header>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Live Occupancy Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
-          <div className="flex justify-between items-start mb-4">
-             <div>
-               <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wider">Live Occupancy</h3>
-               <p className="text-xs text-gray-400 mt-1">Updates every 30s</p>
-             </div>
-             <div className={cn("p-2 rounded-full", occupancyStyle)}>
-                <Users size={24} />
-             </div>
+      {/* 1. Header & Identity */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
+            <User size={20} />
           </div>
-          
-          <div className="flex items-baseline gap-2">
-            <span className={cn("text-4xl font-bold", occupancy >= 90 ? "text-red-600" : occupancy >= 70 ? "text-orange-600" : "text-green-600")}>
-              {occupancy}%
-            </span>
-            <span className="text-gray-500 font-medium">Full</span>
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">Ravi Kumar</h1>
+            <p className="text-xs text-gray-500 font-medium">Counter Staff • <span className="text-green-600">Active Session</span></p>
           </div>
-          
-          <div className="mt-4">
-             <div className="w-full bg-gray-100 rounded-full h-2.5">
+        </div>
+
+        <div className="flex items-center gap-6 flex-1 justify-end">
+           {/* Occupancy Bar */}
+           <div className="hidden md:block flex-1 max-w-xs">
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-gray-500 font-medium">Live Occupancy</span>
+                <span className={`${occupancy > 80 ? 'text-orange-600' : 'text-green-600'} font-bold`}>{occupancy}%</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2">
                 <div 
-                  className={cn("h-2.5 rounded-full transition-all duration-500", occupancy >= 90 ? "bg-red-500" : occupancy >= 70 ? "bg-orange-500" : "bg-green-500")}
+                  className={`h-2 rounded-full transition-all ${occupancy > 90 ? 'bg-red-500' : occupancy > 80 ? 'bg-orange-500' : 'bg-green-500'}`}
                   style={{ width: `${occupancy}%` }}
                 ></div>
-             </div>
-             <p className="text-sm text-gray-600 mt-2 flex justify-between">
-               <span>{occupiedSeats} / {totalSeats} Seats</span>
-               {occupancy >= 90 && <span className="text-red-600 font-medium flex items-center text-xs"><AlertCircle size={12} className="mr-1"/> Near Capacity</span>}
-             </p>
-          </div>
+              </div>
+           </div>
+
+           <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition">
+             <LogOut size={16} /> <span className="hidden sm:inline">Logout</span>
+           </button>
+        </div>
+      </header>
+      
+      {/* 2. Main Execution Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[calc(100vh-140px)]">
+        
+        {/* Left Col: Scanning (Priority) */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+           {/* Token Scanner removed as per request (separate page) */}
+           {/* Token Scanner removed as per request (separate page) */}
+           {/* Scan Token link removed */}
+           <div className="flex-1">
+             <WalkInControl />
+           </div>
         </div>
 
-        {/* Pending Tokens Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-start mb-4">
-             <div>
-               <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wider">Pending Tokens</h3>
-               <p className="text-xs text-gray-400 mt-1">Queue status</p>
-             </div>
-             <div className="p-2 rounded-full bg-blue-50 text-blue-600">
-                <ClipboardList size={24} />
-             </div>
-          </div>
-
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-gray-900">{pendingTokens}</span>
-            <span className="text-gray-500 font-medium">Waiting</span>
-          </div>
-
-          <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-100 flex justify-between items-center">
-             <span className="text-sm text-blue-800 font-medium">Next to serve:</span>
-             <span className="text-xl font-bold text-blue-700">{nextToken}</span>
-          </div>
+        {/* Middle Col: Queue Flow */}
+        <div className="lg:col-span-5 h-[500px] lg:h-auto">
+           <QueueList />
         </div>
+
+        {/* Right Col: Communication & Logs */}
+        <div className="lg:col-span-3 flex flex-col gap-6">
+           <div className="flex-none">
+              <StaffAnnouncements />
+           </div>
+           <div className="flex-1 overflow-hidden">
+              <ActionLog />
+           </div>
+        </div>
+
       </div>
     </div>
   );
