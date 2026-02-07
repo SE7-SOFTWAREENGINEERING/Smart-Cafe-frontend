@@ -14,22 +14,19 @@ const ForgotPasswordPage: React.FC = () => {
     if (!email) return;
     
     setLoading(true);
-    // Simulate API call
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      
-      // Simulate checking if email exists (Mock: fail if email is 'fail@test.com')
-      if (email === 'fail@test.com') {
-         toast.error("Email not found in our records.");
-         return;
-      }
-
-      toast.success("OTP sent to your email!");
-      // Navigate to OTP page, passing email in state for context
-      navigate('/auth/verify-otp', { state: { email } });
-    }, 1500);
+    
+    // Call sending OTP API
+    import('../../services/auth.service').then(async (authService) => {
+        try {
+            await authService.sendOtp(email);
+            toast.success("OTP sent to your email!");
+            navigate('/auth/verify-otp', { state: { email } });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to send OTP");
+        } finally {
+            setLoading(false);
+        }
+    });
   };
 
   return (

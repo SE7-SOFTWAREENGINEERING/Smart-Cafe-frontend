@@ -26,20 +26,21 @@ const Sidebar: React.FC = () => {
 
   const getLinks = () => {
     switch (user.role) {
-      case 'student':
+      case 'user':
         return [
-          { to: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { to: '/student/booking', label: 'Book Slot', icon: Calendar },
-          { to: '/student/queue', label: 'Queue Status', icon: Clock },
-          { to: '/student/notifications', label: 'Notifications', icon: Bell },
-          { to: '/student/sustainability', label: 'Sustainability', icon: Leaf },
+          { to: '/user/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { to: '/user/booking', label: 'Book Slot', icon: Calendar },
+          { to: '/user/queue', label: 'Queue Status', icon: Clock },
+          { to: '/user/notifications', label: 'Notifications', icon: Bell },
+          { to: '/user/sustainability', label: 'Sustainability', icon: Leaf },
         ];
-      case 'staff':
+      case 'canteen_staff':
+      case 'canteenstaff':
         return [
-          { to: '/staff/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { to: '/staff/scan-token', label: 'Scan Token', icon: QrCode },
-          { to: '/staff/walkin', label: 'Walk-in Token', icon: UserPlus },
-          { to: '/staff/announcements', label: 'Announcements', icon: Megaphone },
+          { to: '/canteen-staff/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { to: '/canteen-staff/scan-token', label: 'Scan Token', icon: QrCode },
+          { to: '/canteen-staff/walkin', label: 'Walk-in Token', icon: UserPlus },
+          { to: '/canteen-staff/announcements', label: 'Announcements', icon: Megaphone },
         ];
       case 'manager':
         return [

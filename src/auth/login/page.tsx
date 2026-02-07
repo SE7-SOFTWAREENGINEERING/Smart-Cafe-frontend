@@ -12,18 +12,20 @@ const LoginPage: React.FC = () => {
   const { login, isLoading, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  // Auto-login check
+  // Auto-redirect if already authenticated (runs once on mount)
+  const hasRedirected = React.useRef(false);
   React.useEffect(() => {
-    if (isAuthenticated && user) {
-      switch (user.role) {
-        case 'student': navigate('/student/dashboard'); break;
-        case 'staff': navigate('/staff/dashboard'); break;
-        case 'manager': navigate('/manager/dashboard'); break;
-        case 'admin': navigate('/admin/dashboard'); break;
-        default: navigate('/');
-      }
+    if (isAuthenticated && user && user.role && !hasRedirected.current) {
+      hasRedirected.current = true;
+      const role = user.role.toLowerCase();
+      if (role === 'user') navigate('/user/dashboard');
+      else if (role === 'canteen_staff' || role === 'canteenstaff') navigate('/canteen-staff/dashboard');
+      else if (role === 'manager') navigate('/manager/dashboard');
+      else if (role === 'admin') navigate('/admin/dashboard');
+      else navigate('/');
     }
-  }, [isAuthenticated, user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +40,11 @@ const LoginPage: React.FC = () => {
       const user = await login(email, password);
 
       if (user) {
-        switch (user.role) {
-          case 'student': navigate('/student/dashboard'); break;
-          case 'staff': navigate('/staff/dashboard'); break;
+        const role = user.role?.toLowerCase();
+        switch (role) {
+          case 'user': navigate('/user/dashboard'); break;
+          case 'canteen_staff':
+          case 'canteenstaff': navigate('/canteen-staff/dashboard'); break;
           case 'manager': navigate('/manager/dashboard'); break;
           case 'admin': navigate('/admin/dashboard'); break;
           default: navigate('/');
@@ -117,6 +121,13 @@ const LoginPage: React.FC = () => {
             Sign In
           </Button>
         </form>
+
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/auth/signup" className="text-brand font-medium hover:underline">
+            Create new account
+          </Link>
+        </div>
       </div>
     </div>
   );

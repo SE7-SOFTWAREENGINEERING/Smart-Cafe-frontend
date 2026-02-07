@@ -1,35 +1,83 @@
+import axios from 'axios';
+import { API_CONFIG } from './api.config';
 import type { User } from '../types';
 
 export const login = async (email: string, password: string): Promise<User> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Mock Logic based on email pattern and specific passwords
-  if (email.includes('admin')) {
-    if (password === 'Admin@123') {
-      return { id: '1', name: 'Admin User', email, role: 'admin' };
+  try {
+    const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/login`, {
+      email,
+      password,
+    });
+    
+    // Store token
+    if (response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token);
     }
-  }
-  else if (email.includes('staff')) {
-    if (password === 'Staff@123') {
-      return { id: '2', name: 'Staff User', email, role: 'staff' };
+    
+    return response.data.data.user;
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
     }
+    throw new Error('Login failed. Please check your network connection.');
   }
-  else if (email.includes('manager')) {
-    if (password === 'Manager@123') {
-      return { id: '3', name: 'Manager User', email, role: 'manager' };
-    }
-  }
-  // Default to student if password matches generic student password
-  else {
-    if (password === 'Student@123') {
-      return { id: '4', name: 'Student User', email, role: 'student' };
-    }
-  }
-
-  throw new Error('Invalid credentials');
 };
 
-export const logout = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+export const logout = () => {
+    localStorage.removeItem('token');
 };
+
+export const register = async (name: string, email: string, password: string, role: string): Promise<User> => {
+    try {
+      const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/register`, {
+        fullName: name,
+        email,
+        password,
+        role // Send role as is (User, CanteenStaff, Manager, Admin)
+      });
+      
+      // Store token
+      if (response.data.data.token) {
+          localStorage.setItem('token', response.data.data.token);
+      }
+      
+      return response.data.data.user;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
+        }
+        throw new Error('Registration failed. Please check your network connection.');
+    }
+};
+
+// ---------------------------------------------------------------------------
+// OTP & Password Reset
+// ---------------------------------------------------------------------------
+
+export const sendOtp = async (email: string) => {
+    try {
+        await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/send-otp`, { email });
+    } catch (error: any) {
+        if (error.response?.data?.message) throw new Error(error.response.data.message);
+        throw new Error('Failed to send OTP');
+    }
+};
+
+export const verifyOtp = async (email: string, otp: string) => {
+    try {
+        await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/verify-otp`, { email, otp });
+    } catch (error: any) {
+        if (error.response?.data?.message) throw new Error(error.response.data.message);
+        throw new Error('Invalid OTP');
+    }
+};
+
+export const resetPassword = async (email: string, otp: string, password: string) => {
+    try {
+        await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/reset-password`, { email, otp, password });
+    } catch (error: any) {
+        if (error.response?.data?.message) throw new Error(error.response.data.message);
+        throw new Error('Failed to reset password');
+    }
+};
+

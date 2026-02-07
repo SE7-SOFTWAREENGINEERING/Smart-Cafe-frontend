@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Lock, ArrowRight, CheckCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
@@ -13,6 +13,9 @@ const ResetPasswordPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email;
+  const otp = location.state?.otp;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +32,28 @@ const ResetPasswordPage: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Simulate API reset
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      toast.success("Password reset successfully!");
-      setTimeout(() => navigate('/auth/login'), 2000); // Redirect after success message
-    }, 1500);
+    setLoading(true);
+    setError('');
+
+    if (!email || !otp) {
+        setError('Missing validation context. Please restart process.');
+        setLoading(false);
+        return;
+    }
+
+    import('../../services/auth.service').then(async (authService) => {
+        try {
+            await authService.resetPassword(email, otp, password);
+            setSuccess(true);
+            toast.success("Password reset successfully!");
+            setTimeout(() => navigate('/auth/login'), 2000);
+        } catch (error: any) {
+            setError(error.message || "Failed to reset password");
+            toast.error("Failed to reset password");
+        } finally {
+            setLoading(false);
+        }
+    });
   };
 
   if (success) {

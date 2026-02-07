@@ -5,6 +5,7 @@ import * as AuthService from '../services/auth.service';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<User | null>;
+  register: (name: string, email: string, password: string, role: string) => Promise<User | null>;
   logout: () => void;
 }
 
@@ -35,13 +36,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const register = async (name: string, email: string, password: string, role: string) => {
+    setState(prev => ({ ...prev, isLoading: true }));
+    try {
+      const user = await AuthService.register(name, email, password, role);
+      setState({ user, isAuthenticated: true, isLoading: false });
+      return user;
+    } catch (error) {
+      console.error(error);
+      setState(prev => ({ ...prev, isLoading: false }));
+      throw error;
+    }
+  };
+
   const logout = () => {
     AuthService.logout();
     setState({ user: null, isAuthenticated: false, isLoading: false });
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -13,12 +13,12 @@ interface UserRow {
 }
 
 const MOCK_USERS: UserRow[] = [
-  { id: 1, name: 'John Doe', email: 'john@college.edu', role: 'student', status: 'Active', isOnline: true },
+  { id: 1, name: 'John Doe', email: 'john@college.edu', role: 'user', status: 'Active', isOnline: true },
   { id: 2, name: 'Sarah Smith', email: 'sarah@admin.edu', role: 'admin', status: 'Active', isOnline: true },
   { id: 3, name: 'Mike Johnson', email: 'mike@staff.edu', role: 'counter_staff', status: 'Active', isOnline: true },
   { id: 4, name: 'Emily Davis', email: 'emily@manager.edu', role: 'manager', status: 'Suspended', isOnline: false },
   { id: 5, name: 'Chef Gordon', email: 'gordon@kitchen.edu', role: 'kitchen_staff', status: 'Active', isOnline: false },
-  { id: 6, name: 'Lisa Wilson', email: 'lisa@staff.edu', role: 'staff', status: 'Active', isOnline: true }
+  { id: 6, name: 'Lisa Wilson', email: 'lisa@staff.edu', role: 'canteen_staff', status: 'Active', isOnline: true }
 ];
 
 const AdminRoles: React.FC = () => {
@@ -30,7 +30,7 @@ const AdminRoles: React.FC = () => {
 
   // Add User Modal State
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'student' as Role });
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'user' as Role });
 
   const handleEdit = (user: UserRow) => {
     setEditingId(user.id);
@@ -74,7 +74,7 @@ const AdminRoles: React.FC = () => {
     };
     setUsers([...users, user]);
     setIsAddUserOpen(false);
-    setNewUser({ name: '', email: '', role: 'student' });
+    setNewUser({ name: '', email: '', role: 'user' });
     alert(`Account created for ${user.name} as ${user.role}`);
   };
 
@@ -121,8 +121,8 @@ const AdminRoles: React.FC = () => {
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
           >
             <option value="all">All Roles</option>
-            <option value="student">Student</option>
-            <option value="staff">General Staff</option>
+            <option value="user">User</option>
+            <option value="canteen_staff">Canteen Staff</option>
             <option value="kitchen_staff">Kitchen Staff</option>
             <option value="counter_staff">Counter Staff</option>
             <option value="manager">Manager</option>
@@ -163,8 +163,8 @@ const AdminRoles: React.FC = () => {
                         onChange={(e) => setTempRole(e.target.value as Role)}
                         className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                       >
-                        <option value="student">Student</option>
-                        <option value="staff">General Staff</option>
+                        <option value="user">User</option>
+                        <option value="canteen_staff">Canteen Staff</option>
                         <option value="kitchen_staff">Kitchen Staff</option>
                         <option value="counter_staff">Counter Staff</option>
                         <option value="manager">Manager</option>
@@ -268,8 +268,8 @@ const AdminRoles: React.FC = () => {
                   value={newUser.role}
                   onChange={e => setNewUser({ ...newUser, role: e.target.value as Role })}
                 >
-                  <option value="student">Student</option>
-                  <option value="staff">General Staff</option>
+                  <option value="user">User</option>
+                  <option value="canteen_staff">Canteen Staff</option>
                   <option value="kitchen_staff">Kitchen Staff</option>
                   <option value="counter_staff">Counter Staff</option>
                   <option value="manager">Manager</option>

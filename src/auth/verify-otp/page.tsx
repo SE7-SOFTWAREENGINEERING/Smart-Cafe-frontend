@@ -54,17 +54,20 @@ const VerifyOtpPage: React.FC = () => {
     }
 
     setLoading(true);
-    // Simulate validation (Mock OTP is 123456)
-    setTimeout(() => {
-       if (enteredOtp === '123456') {
-         toast.success("Identity verified successfully!");
-         navigate('/auth/reset-password');
-       } else {
-         toast.error("Invalid OTP. Please check the code.");
-         setError('Invalid OTP. Please try again (Hint: 123456).');
-         setLoading(false);
-       }
-    }, 1500);
+
+    import('../../services/auth.service').then(async (authService) => {
+        try {
+            await authService.verifyOtp(email, enteredOtp);
+            toast.success("Identity verified successfully!");
+            // Pass email and OTP to reset password page so it can be used for final submission
+            navigate('/auth/reset-password', { state: { email, otp: enteredOtp } });
+        } catch (error: any) {
+            toast.error(error.message || "Invalid OTP");
+            setError('Invalid OTP. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    });
   };
 
   return (

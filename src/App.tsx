@@ -5,6 +5,7 @@ import { AuthProvider } from './store/auth.store';
 import Layout from './layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LoginPage from './auth/login/page';
+import SignUpPage from './auth/signup/page';
 import Loader from './components/common/Loader';
 
 const ForgotPasswordPage = React.lazy(() => import('./auth/forgot-password/page'));
@@ -12,22 +13,22 @@ const VerifyOtpPage = React.lazy(() => import('./auth/verify-otp/page'));
 const ResetPasswordPage = React.lazy(() => import('./auth/reset-password/page'));
 
 // Lazy load pages for better performance
-const StudentDashboard = React.lazy(() => import('./student/dashboard/page'));
-const StudentBooking = React.lazy(() => import('./student/booking/page'));
-const StudentQueue = React.lazy(() => import('./student/queue/page'));
-const StudentNotifications = React.lazy(() => import('./student/notifications/page'));
-const StudentSustainability = React.lazy(() => import('./student/sustainability/page'));
-const StudentCanteens = React.lazy(() => import('./student/canteens/page'));
-const StudentItemDetail = React.lazy(() => import('./student/item/page'));
-const StudentCart = React.lazy(() => import('./student/cart/page'));
-const StudentSlots = React.lazy(() => import('./student/slots/page'));
-const StudentToken = React.lazy(() => import('./student/token/page'));
+const UserDashboard = React.lazy(() => import('./student/dashboard/page'));
+const UserBooking = React.lazy(() => import('./student/booking/page'));
+const UserQueue = React.lazy(() => import('./student/queue/page'));
+const UserNotifications = React.lazy(() => import('./student/notifications/page'));
+const UserSustainability = React.lazy(() => import('./student/sustainability/page'));
+const UserCanteens = React.lazy(() => import('./student/canteens/page'));
+const UserItemDetail = React.lazy(() => import('./student/item/page'));
+const UserCart = React.lazy(() => import('./student/cart/page'));
+const UserSlots = React.lazy(() => import('./student/slots/page'));
+const UserToken = React.lazy(() => import('./student/token/page'));
 
 
-const StaffDashboard = React.lazy(() => import('./staff/dashboard/page'));
-const StaffScanToken = React.lazy(() => import('./staff/scan-token/page'));
-const StaffWalkin = React.lazy(() => import('./staff/walkin/page'));
-const StaffAnnouncements = React.lazy(() => import('./staff/announcements/page'));
+const CanteenStaffDashboard = React.lazy(() => import('./staff/dashboard/page'));
+const CanteenStaffScanToken = React.lazy(() => import('./staff/scan-token/page'));
+const CanteenStaffWalkin = React.lazy(() => import('./staff/walkin/page'));
+const CanteenStaffAnnouncements = React.lazy(() => import('./staff/announcements/page'));
 
 const ManagerDashboard = React.lazy(() => import('./manager/dashboard/page'));
 const ManagerForecasts = React.lazy(() => import('./manager/forecasts/page'));
@@ -50,33 +51,34 @@ function App() {
           <Toaster position="top-right" />
           <Routes>
             <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/signup" element={<SignUpPage />} />
             <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/auth/verify-otp" element={<VerifyOtpPage />} />
             <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
             <Route element={<Layout />}>
-              {/* Student Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-                <Route path="/student/dashboard" element={<StudentDashboard />} />
-                <Route path="/student/booking" element={<StudentBooking />} />
-                <Route path="/student/queue" element={<StudentQueue />} />
-                <Route path="/student/notifications" element={<StudentNotifications />} />
+              {/* User Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+                <Route path="/user/dashboard" element={<UserDashboard />} />
+                <Route path="/user/booking" element={<UserBooking />} />
+                <Route path="/user/queue" element={<UserQueue />} />
+                <Route path="/user/notifications" element={<UserNotifications />} />
 
-                <Route path="/student/sustainability" element={<StudentSustainability />} />
-                <Route path="/student/canteens" element={<StudentCanteens />} />
-                <Route path="/student/item/:id" element={<StudentItemDetail />} />
-                <Route path="/student/cart" element={<StudentCart />} />
-                <Route path="/student/slots" element={<StudentSlots />} />
-                <Route path="/student/token" element={<StudentToken />} />
+                <Route path="/user/sustainability" element={<UserSustainability />} />
+                <Route path="/user/canteens" element={<UserCanteens />} />
+                <Route path="/user/item/:id" element={<UserItemDetail />} />
+                <Route path="/user/cart" element={<UserCart />} />
+                <Route path="/user/slots" element={<UserSlots />} />
+                <Route path="/user/token" element={<UserToken />} />
 
               </Route>
 
-              {/* Staff Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['staff']} />}>
-                <Route path="/staff/dashboard" element={<StaffDashboard />} />
-                <Route path="/staff/scan-token" element={<StaffScanToken />} />
-                <Route path="/staff/walkin" element={<StaffWalkin />} />
-                <Route path="/staff/announcements" element={<StaffAnnouncements />} />
+              {/* Canteen Staff Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['canteen_staff', 'canteenstaff']} />}>
+                <Route path="/canteen-staff/dashboard" element={<CanteenStaffDashboard />} />
+                <Route path="/canteen-staff/scan-token" element={<CanteenStaffScanToken />} />
+                <Route path="/canteen-staff/walkin" element={<CanteenStaffWalkin />} />
+                <Route path="/canteen-staff/announcements" element={<CanteenStaffAnnouncements />} />
               </Route>
 
               {/* Manager Routes */}
