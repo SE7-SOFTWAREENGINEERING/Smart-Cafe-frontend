@@ -37,12 +37,19 @@ const StudentBooking: React.FC = () => {
   const canteenId = searchParams.get('canteenId') || 'c1';
   const { user } = useAuth(); // Assuming auth context exists
 
+  const canteenMap: { [key: string]: string } = {
+    'c1': 'Sopanam',
+    'c2': 'Prasada',
+    'c3': 'Samudra'
+  };
+  const canteenName = canteenMap[canteenId] || 'Sopanam';
+
   // State
   const [activeTab, setActiveTab] = useState<'Food' | 'Slots'>('Food');
   const [activeCategory, setActiveCategory] = useState<'Breakfast' | 'Lunch' | 'Snacks'>('Lunch');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  
+
   // Slot Booking State
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -52,12 +59,12 @@ const StudentBooking: React.FC = () => {
     if (activeTab === 'Slots') {
       fetchSlots();
     }
-  }, [activeTab]);
+  }, [activeTab, canteenId]);
 
   const fetchSlots = async () => {
     setLoadingSlots(true);
     try {
-      const data = await getSlots();
+      const data = await getSlots(canteenName);
       setSlots(data);
     } catch (err) {
       console.error(err);
@@ -66,15 +73,17 @@ const StudentBooking: React.FC = () => {
     }
   };
 
-  const handleBookSlot = async (slotId: string) => {
+  const handleBookSlot = async (slotTime: string) => {
     if (!user) return;
     try {
-      await bookSlot(slotId, user.id); // Use real user ID
+      // Use activeCategory for meal type
+      await bookSlot(slotTime, activeCategory, canteenName);
       setBookingMessage({ type: 'success', text: 'Slot booked successfully!' });
       fetchSlots(); // Refresh
       setTimeout(() => setBookingMessage(null), 3000);
-    } catch (err) {
-      setBookingMessage({ type: 'error', text: 'Failed to book slot. It might be full.' });
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to book slot.';
+      setBookingMessage({ type: 'error', text: msg });
       setTimeout(() => setBookingMessage(null), 3000);
     }
   };
@@ -111,29 +120,29 @@ const StudentBooking: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               {activeTab === 'Food' ? 'Food Menu' : 'Book a Seat'}
             </h1>
-            <p className="text-sm text-gray-500">Ordering from {canteenId === 'c1' ? 'Sopanam' : canteenId === 'c2' ? 'Prasada' : 'Samudra'}</p>
+            <p className="text-sm text-gray-500">Ordering from {canteenName}</p>
           </div>
           <div className="flex gap-2">
-             <button 
-                onClick={() => setActiveTab('Food')}
-                className={cn("p-2 rounded-lg text-sm font-medium transition-colors", activeTab === 'Food' ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}
-             >
-                Food
-             </button>
-             <button 
-                onClick={() => setActiveTab('Slots')}
-                className={cn("p-2 rounded-lg text-sm font-medium transition-colors", activeTab === 'Slots' ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}
-             >
-                Seats
-             </button>
-             <Link to="/student/cart" className="p-2 bg-gray-100 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors">
-               <ShoppingBag size={20} />
-             </Link>
+            <button
+              onClick={() => setActiveTab('Food')}
+              className={cn("p-2 rounded-lg text-sm font-medium transition-colors", activeTab === 'Food' ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}
+            >
+              Food
+            </button>
+            <button
+              onClick={() => setActiveTab('Slots')}
+              className={cn("p-2 rounded-lg text-sm font-medium transition-colors", activeTab === 'Slots' ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}
+            >
+              Seats
+            </button>
+            <Link to="/student/cart" className="p-2 bg-gray-100 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <ShoppingBag size={20} />
+            </Link>
           </div>
         </div>
 
         {activeTab === 'Food' && (
-        <>
+          <>
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -180,120 +189,120 @@ const StudentBooking: React.FC = () => {
                 </button>
               ))}
             </div>
-        </>
+          </>
         )}
       </section>
 
       {/* 2. Content */}
       {activeTab === 'Food' ? (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map(item => (
+          {filteredItems.map(item => (
             <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex gap-4">
-                {/* Image Placeholder */}
-                <Link to={`/student/item/${item.id}`} className={cn("w-24 h-24 rounded-xl flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity", item.imageColor)}></Link>
+              {/* Image Placeholder */}
+              <Link to={`/student/item/${item.id}`} className={cn("w-24 h-24 rounded-xl flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity", item.imageColor)}></Link>
 
-                <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div className="flex-1 min-w-0 flex flex-col justify-between">
                 <div>
-                    <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start">
                     <Link to={`/student/item/${item.id}`} className="font-bold text-gray-900 truncate hover:text-blue-600">{item.name}</Link>
                     {/* Veg/Non-Veg Indicator */}
                     <span className={cn(
-                        "w-4 h-4 border flex items-center justify-center flex-shrink-0",
-                        item.type === 'Non-Veg' ? "border-red-500" : "border-green-500"
+                      "w-4 h-4 border flex items-center justify-center flex-shrink-0",
+                      item.type === 'Non-Veg' ? "border-red-500" : "border-green-500"
                     )}>
-                        <span className={cn(
+                      <span className={cn(
                         "w-2 h-2 rounded-full",
                         item.type === 'Non-Veg' ? "bg-red-500" : "bg-green-500"
-                        )}></span>
+                      )}></span>
                     </span>
-                    </div>
+                  </div>
 
-                    {/* Metadata */}
-                    <div className="flex flex-wrap gap-2 mt-2">
+                  {/* Metadata */}
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {item.ecoScore > 80 && (
-                        <span className="text-[10px] font-bold bg-green-50 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <span className="text-[10px] font-bold bg-green-50 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-1">
                         <Leaf size={8} /> Eco
-                        </span>
+                      </span>
                     )}
                     {item.allergens.map(alg => (
-                        <span key={alg} className="text-[10px] font-bold bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <span key={alg} className="text-[10px] font-bold bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded flex items-center gap-1">
                         <AlertTriangle size={8} /> {alg}
-                        </span>
+                      </span>
                     ))}
-                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-3">
-                    <div>
+                  <div>
                     <p className="text-lg font-bold text-gray-900">₹{item.price.regular}</p>
                     {item.price.small && (
-                        <p className="text-xs text-gray-400">Sm: ₹{item.price.small}</p>
+                      <p className="text-xs text-gray-400">Sm: ₹{item.price.small}</p>
                     )}
-                    </div>
+                  </div>
 
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     {/* Portion Selector (Mock) */}
                     {item.price.small && (
-                        <select className="text-xs bg-gray-50 border-gray-200 rounded p-1 outline-none">
+                      <select className="text-xs bg-gray-50 border-gray-200 rounded p-1 outline-none">
                         <option>Reg</option>
                         <option>Sml</option>
-                        </select>
+                      </select>
                     )}
                     <Button size="sm" className="h-8 px-3 text-xs">Add</Button>
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             </div>
-            ))}
-            {filteredItems.length === 0 && (
+          ))}
+          {filteredItems.length === 0 && (
             <div className="col-span-full text-center py-10 text-gray-400">
-                No items found matching your filters.
+              No items found matching your filters.
             </div>
-            )}
+          )}
         </section>
       ) : (
         <section className="space-y-4">
-            {bookingMessage && (
-                <div className={cn("p-3 rounded-lg text-center text-sm", bookingMessage.type === 'success' ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700")}>
-                    {bookingMessage.text}
+          {bookingMessage && (
+            <div className={cn("p-3 rounded-lg text-center text-sm", bookingMessage.type === 'success' ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700")}>
+              {bookingMessage.text}
+            </div>
+          )}
+
+          {loadingSlots ? (
+            <div className="text-center py-10 text-gray-400">Loading slots...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {slots.map(slot => {
+                const available = slot.capacity - slot.booked;
+                return (
+                  <div key={slot._id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                        <Clock size={16} className="text-blue-500" />
+                        {slot.time}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Available: <span className={cn("font-bold", available < 10 ? "text-red-500" : "text-green-500")}>{available}</span> / {slot.capacity}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={available <= 0}
+                      onClick={() => handleBookSlot(slot.time)}
+                      className={cn(available <= 0 ? "bg-gray-200 text-gray-400" : "")}
+                    >
+                      {available <= 0 ? 'Full' : 'Book'}
+                    </Button>
+                  </div>
+                );
+              })}
+              {slots.length === 0 && (
+                <div className="col-span-full text-center py-10 text-gray-400">
+                  No slots available.
                 </div>
-            )}
-            
-            {loadingSlots ? (
-                <div className="text-center py-10 text-gray-400">Loading slots...</div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {slots.map(slot => {
-                        const available = slot.capacity - slot.booked;
-                        return (
-                            <div key={slot._id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                        <Clock size={16} className="text-blue-500" />
-                                        {slot.time}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Available: <span className={cn("font-bold", available < 10 ? "text-red-500" : "text-green-500")}>{available}</span> / {slot.capacity}
-                                    </p>
-                                </div>
-                                <Button 
-                                    size="sm" 
-                                    disabled={available <= 0}
-                                    onClick={() => handleBookSlot(slot._id)}
-                                    className={cn(available <= 0 ? "bg-gray-200 text-gray-400" : "")}
-                                >
-                                    {available <= 0 ? 'Full' : 'Book'}
-                                </Button>
-                            </div>
-                        );
-                    })}
-                    {slots.length === 0 && (
-                        <div className="col-span-full text-center py-10 text-gray-400">
-                            No slots available.
-                        </div>
-                    )}
-                </div>
-            )}
+              )}
+            </div>
+          )}
         </section>
       )}
 

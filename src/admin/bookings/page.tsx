@@ -3,51 +3,133 @@ import { Clock, Sliders, AlertTriangle, UserPlus, Ban, Eye, Search, AlertCircle 
 import Button from '../../components/common/Button';
 import { cn } from '../../utils/cn';
 
+import { getLiveSlots, updateSlotCapacity, toggleSlotStatus, getSlotBookings, addWalkInBookings } from '../../services/slot.service';
+import toast from 'react-hot-toast';
+
 interface Slot {
     id: string;
     time: string;
     capacity: number;
     booked: number;
     status: 'Open' | 'Full' | 'Cancelled' | 'FastFilling';
+    isActive: boolean;
 }
 
-const MOCK_SLOTS: Slot[] = [
-    { id: '1', time: '08:00 AM', capacity: 200, booked: 45, status: 'Open' },
-    { id: '2', time: '08:15 AM', capacity: 200, booked: 180, status: 'FastFilling' },
-    { id: '3', time: '08:30 AM', capacity: 200, booked: 200, status: 'Full' },
-    { id: '4', time: '08:45 AM', capacity: 200, booked: 198, status: 'Full' },
-    { id: '5', time: '09:00 AM', capacity: 200, booked: 120, status: 'Open' },
-    { id: '6', time: '09:15 AM', capacity: 0, booked: 0, status: 'Cancelled' },
-];
+// Removed MOCK_SLOTS
 
 const AdminBookings: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
-    const [slots, setSlots] = useState(MOCK_SLOTS);
+    const [slots, setSlots] = useState<Slot[]>([]);
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    const handleCancelSlot = (id: string) => {
-        if (window.confirm('Emergency Cancel: Are you sure you want to cancel this slot? All existing bookings will be notified.')) {
-            setSlots(slots.map(s => s.id === id ? { ...s, status: 'Cancelled', capacity: 0 } : s));
-            setSelectedSlot(null);
+    // New state for bookings modal
+    const [showBookingsModal, setShowBookingsModal] = useState(false);
+    const [slotBookings, setSlotBookings] = useState<any[]>([]);
+    const [loadingBookings, setLoadingBookings] = useState(false);
+
+    const fetchSlots = async () => {
+        try {
+            setLoading(true);
+            const data = await getLiveSlots(selectedDate);
+            setSlots(data);
+        } catch (error) {
+            toast.error('Failed to load slots');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleOverrideBooking = () => {
-        if (selectedSlot) {
-            const count = prompt("Enter number of bookings to force add:");
-            if (count) {
-                const toAdd = parseInt(count);
-                setSlots(slots.map(s => s.id === selectedSlot.id ? { ...s, booked: s.booked + toAdd } : s));
-                alert("Bookings force-added successfully.");
+    React.useEffect(() => {
+        fetchSlots();
+    }, [selectedDate]);
+
+    const handleCancelSlot = async (id: string) => {
+        if (window.confirm('Emergency Cancel: Are you sure you want to cancel this slot? All existing bookings will be notified.')) {
+            try {
+                await toggleSlotStatus(id);
+                toast.success('Slot status updated');
+                fetchSlots();
+                setSelectedSlot(null);
+            } catch (error) {
+                toast.error('Failed to cancel slot');
             }
         }
     };
 
-    const handleCapacityOverride = () => {
+    const handleOverrideBooking = async () => {
+        if (selectedSlot) {
+            const count = prompt("Enter number of bookings to force add (Walk-in):");
+            if (count) {
+                const toAdd = parseInt(count);
+                if (isNaN(toAdd) || toAdd <= 0) return toast.error('Invalid number');
+
+                try {
+                    await addWalkInBookings(selectedSlot.id, toAdd);
+                    toast.success('Bookings force-added successfully');
+                    fetchSlots();
+                } catch (error) {
+                    toast.error('Failed to add bookings');
+                }
+            }
+        }
+    };
+
+    const handleViewBookings = async () => {
+        if (!selectedSlot) return;
+        setShowBookingsModal(true);
+        setLoadingBookings(true);
+        try {
+            const data = await getSlotBookings(selectedSlot.id);
+            setSlotBookings(data);
+        } catch (error) {
+            toast.error('Failed to load bookings');
+        } finally {
+            setLoadingBookings(false);
+        }
+    };
+
+    const handleCapacityOverride = async () => {
         if (selectedSlot) {
             const newCap = prompt("Enter new capacity limit for this slot:", selectedSlot.capacity.toString());
             if (newCap) {
-                setSlots(slots.map(s => s.id === selectedSlot.id ? { ...s, capacity: parseInt(newCap) } : s));
+                try {
+                    await updateSlotCapacity(selectedSlot.id, parseInt(newCap));
+                    toast.success('Capacity updated');
+                    fetchSlots();
+                } catch (error) {
+                    toast.error('Failed to update capacity');
+                }
+            }
+        }
+    };
+
+    const [showCreateSlotModal, setShowCreateSlotModal] = useState(false);
+    const [newSlotData, setNewSlotData] = useState({ time: '12:00', maxCapacity: 50 });
+
+    const handleCreateSlot = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            // Service expects date, time, capacity
+            // using selectedDate
+            await import('../../services/slot.service').then(m => m.createSlot(selectedDate, newSlotData.time, newSlotData.maxCapacity));
+            toast.success('Slot created successfully');
+            setShowCreateSlotModal(false);
+            fetchSlots();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to create slot');
+        }
+    };
+
+    const handleDeleteSlot = async () => {
+        if (selectedSlot && window.confirm('Are you sure you want to permanently delete this slot?')) {
+            try {
+                await import('../../services/slot.service').then(m => m.deleteSlot(selectedSlot.id));
+                toast.success('Slot deleted');
+                setSelectedSlot(null);
+                fetchSlots();
+            } catch (error) {
+                toast.error('Failed to delete slot');
             }
         }
     };
@@ -66,9 +148,9 @@ const AdminBookings: React.FC = () => {
                         onChange={e => setSelectedDate(e.target.value)}
                         className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     />
-                    <Button variant="secondary">
-                        <Search size={16} className="mr-2" />
-                        Find Booking
+                    <Button size="sm" onClick={() => setShowCreateSlotModal(true)}>
+                        <UserPlus size={16} className="mr-2" />
+                        Add Slot
                     </Button>
                 </div>
             </div>
@@ -80,6 +162,7 @@ const AdminBookings: React.FC = () => {
                         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <Clock size={18} />
                             Live Slot Status
+                            {loading && <span className="text-xs text-blue-500 font-normal animate-pulse ml-2">Updating...</span>}
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {slots.map(slot => (
@@ -139,7 +222,7 @@ const AdminBookings: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Button className="w-full justify-start" variant="secondary" onClick={() => alert('View list mock')}>
+                                    <Button className="w-full justify-start" variant="secondary" onClick={handleViewBookings}>
                                         <Eye size={16} className="mr-2" />
                                         View Bookings
                                     </Button>
@@ -153,19 +236,21 @@ const AdminBookings: React.FC = () => {
                                     </Button>
                                 </div>
 
-                                <div className="pt-6 border-t border-gray-100">
-                                    <h4 className="text-sm font-semibold text-red-600 mb-2 flex items-center gap-2">
-                                        <AlertTriangle size={16} />
-                                        Emergency Zone
-                                    </h4>
-                                    <p className="text-xs text-gray-500 mb-3">Cancelling a slot will notify all booked users and refund tokens.</p>
+                                <div className="pt-6 border-t border-gray-100 space-y-3">
                                     <Button
                                         className="w-full bg-red-600 hover:bg-red-700 text-white border-transparent"
                                         variant="danger"
                                         disabled={selectedSlot.status === 'Cancelled'}
                                         onClick={() => handleCancelSlot(selectedSlot.id)}
                                     >
-                                        Cancel Slot
+                                        Cancel Slot (Emergency)
+                                    </Button>
+                                    <Button
+                                        className="w-full border-red-200 text-red-600 hover:bg-red-50"
+                                        variant="secondary"
+                                        onClick={handleDeleteSlot}
+                                    >
+                                        Delete Slot Permanently
                                     </Button>
                                 </div>
                             </div>
@@ -178,6 +263,94 @@ const AdminBookings: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Bookings Modal */}
+            {showBookingsModal && selectedSlot && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+                        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                            <h3 className="font-bold text-lg">Bookings for {selectedSlot.time}</h3>
+                            <button onClick={() => setShowBookingsModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4">
+                            {loadingBookings ? (
+                                <div className="text-center py-8 text-gray-500">Loading bookings...</div>
+                            ) : slotBookings.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">No bookings found for this slot.</div>
+                            ) : (
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-2">ID</th>
+                                            <th className="px-4 py-2">User</th>
+                                            <th className="px-4 py-2">Role</th>
+                                            <th className="px-4 py-2">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {slotBookings.map((booking) => (
+                                            <tr key={booking.bookingId} className="border-b hover:bg-gray-50">
+                                                <td className="px-4 py-3 font-medium">#{booking.bookingId}</td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-medium">{booking.userName}</div>
+                                                    <div className="text-xs text-gray-500">{booking.userEmail}</div>
+                                                </td>
+                                                <td className="px-4 py-3">{booking.role}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold",
+                                                        booking.status === 'Booked' ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                                                    )}>
+                                                        {booking.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                        <div className="p-4 border-t bg-gray-50 flex justify-end">
+                            <Button variant="secondary" onClick={() => setShowBookingsModal(false)}>Close</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Slot Modal */}
+            {showCreateSlotModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Add New Slot</h3>
+                        <form onSubmit={handleCreateSlot} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                                <input
+                                    type="time"
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    value={newSlotData.time}
+                                    onChange={e => setNewSlotData({ ...newSlotData, time: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    value={newSlotData.maxCapacity}
+                                    onChange={e => setNewSlotData({ ...newSlotData, maxCapacity: parseInt(e.target.value) })}
+                                />
+                            </div>
+                            <div className="pt-4 flex justify-end gap-3">
+                                <Button variant="secondary" onClick={() => setShowCreateSlotModal(false)} type="button">Cancel</Button>
+                                <Button type="submit">Create Slot</Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

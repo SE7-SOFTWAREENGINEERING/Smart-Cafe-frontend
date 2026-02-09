@@ -10,9 +10,11 @@ export interface Slot {
   // Add other fields as per the API response
 }
 
-export const getSlots = async (): Promise<Slot[]> => {
+export const getSlots = async (canteen: string = 'Sopanam'): Promise<Slot[]> => {
   try {
-    const response = await axios.get(`${API_CONFIG.BOOKING_API_URL}/slots`);
+    const response = await axios.get(`${API_CONFIG.BOOKING_API_URL}/slots`, {
+      params: { canteen }
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching slots:', error);
@@ -20,11 +22,12 @@ export const getSlots = async (): Promise<Slot[]> => {
   }
 };
 
-export const bookSlot = async (slotId: string, userId: string) => {
+export const bookSlot = async (slotTime: string, mealType: string, canteen: string) => {
   try {
     const response = await axios.post(`${API_CONFIG.BOOKING_API_URL}/book`, {
-      slot_id: slotId,
-      user_id: userId,
+      slot_time: slotTime,
+      meal_type: mealType,
+      canteen: canteen
     });
     return response.data;
   } catch (error) {

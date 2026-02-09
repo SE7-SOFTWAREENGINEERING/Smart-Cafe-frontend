@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Sliders, Activity } from 'lucide-react';
 import Button from '../../components/common/Button';
-import { getAnalytics } from '../../services/forecast.service';
-import type { AnalyticsResponse } from '../../services/forecast.service';
+import { getAnalytics } from '../../services/system.service';
+import toast from 'react-hot-toast';
+
+interface AnalyticsResponse {
+  total_records: number;
+  average_demand: number;
+  metrics: {
+    mape: number;
+    rmse: number;
+  };
+  top_drivers: { factor: string; importance: number }[];
+  chart_data: { day: string; actual: number; predicted: number }[];
+}
 
 const AdminAccuracy: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -17,8 +28,10 @@ const AdminAccuracy: React.FC = () => {
     try {
       const response = await getAnalytics();
       setData(response);
+      toast.success('Analytics Refreshed');
     } catch (err) {
       console.error(err);
+      toast.error('Failed to load analytics');
     } finally {
       setLoading(false);
     }
@@ -57,17 +70,14 @@ const AdminAccuracy: React.FC = () => {
           <span className="text-xs text-gray-400">Deviation</span>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-gray-500 text-sm font-medium">Active Model</h3>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-            <p className="text-lg font-bold text-green-700">RandomForest</p>
-          </div>
-          <span className="text-xs text-gray-400">Total Records: {data?.total_records}</span>
+          <h3 className="text-gray-500 text-sm font-medium">Total Booking Records</h3>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{data?.total_records}</p>
+          <span className="text-xs text-blue-600 font-medium">Dataset Size</span>
         </div>
       </div>
 
-       {/* Top Drivers (Replacing Tuning Section for visual clarity connection to API) */}
-       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      {/* Top Drivers (Replacing Tuning Section for visual clarity connection to API) */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
             <Sliders size={20} className="text-brand" />
@@ -76,17 +86,17 @@ const AdminAccuracy: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-           {data?.top_drivers.map((driver, idx) => (
-               <div key={idx}>
-                   <div className="flex justify-between mb-2">
-                       <label className="text-sm font-medium text-gray-700">{driver.factor}</label>
-                       <span className="text-sm text-brand font-bold">{Math.round(driver.importance * 100)}%</span>
-                   </div>
-                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                       <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${driver.importance * 100}%` }}></div>
-                   </div>
-               </div>
-           ))}
+          {data?.top_drivers.map((driver, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">{driver.factor}</label>
+                <span className="text-sm text-brand font-bold">{Math.round(driver.importance * 100)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${driver.importance * 100}%` }}></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

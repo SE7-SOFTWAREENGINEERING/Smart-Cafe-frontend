@@ -1,10 +1,12 @@
 export type Role = 'user' | 'canteen_staff' | 'canteenstaff' | 'kitchen_staff' | 'counter_staff' | 'manager' | 'admin';
 
 export interface User {
-  id: string;
+  id: string | number;
   name: string;
   email: string;
   role: Role;
+  status?: 'Active' | 'Suspended';
+  isOnline?: boolean;
   avatar?: string;
 }
 
@@ -15,8 +17,9 @@ export interface AuthState {
 }
 
 export interface MenuItem {
-  id: number;
+  id: number | string;
   name: string;
+  description?: string;
   price: number;
   mealType: 'Breakfast' | 'Lunch' | 'Snacks';
   dietaryType: 'Veg' | 'Non-Veg' | 'Vegan' | 'Jain';

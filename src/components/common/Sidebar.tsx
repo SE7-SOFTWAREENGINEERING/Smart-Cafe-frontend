@@ -25,7 +25,8 @@ const Sidebar: React.FC = () => {
   if (!user) return null;
 
   const getLinks = () => {
-    switch (user.role) {
+    const role = user.role?.toLowerCase();
+    switch (role) {
       case 'user':
         return [
           { to: '/user/dashboard', label: 'Dashboard', icon: LayoutDashboard },
