@@ -25,17 +25,22 @@ const Sidebar: React.FC = () => {
   if (!user) return null;
 
   const getLinks = () => {
-    switch (user.role) {
+    // Normalize role to lowercase for case-insensitive matching
+    const role = (user.role || '').toLowerCase();
+
+    switch (role) {
       case 'user':
+      case 'student':
         return [
-          { to: '/user/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { to: '/user/booking', label: 'Book Slot', icon: Calendar },
-          { to: '/user/queue', label: 'Queue Status', icon: Clock },
-          { to: '/user/notifications', label: 'Notifications', icon: Bell },
-          { to: '/user/sustainability', label: 'Sustainability', icon: Leaf },
+          { to: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { to: '/student/booking', label: 'Book Slot', icon: Calendar },
+          { to: '/student/queue', label: 'Queue Status', icon: Clock },
+          { to: '/student/notifications', label: 'Notifications', icon: Bell },
+          { to: '/student/sustainability', label: 'Sustainability', icon: Leaf },
         ];
       case 'canteen_staff':
       case 'canteenstaff':
+      case 'canteen staff':
         return [
           { to: '/canteen-staff/dashboard', label: 'Dashboard', icon: LayoutDashboard },
           { to: '/canteen-staff/scan-token', label: 'Scan Token', icon: QrCode },
@@ -59,6 +64,7 @@ const Sidebar: React.FC = () => {
           { to: '/admin/system', label: 'System Maintenance', icon: Database },
         ];
       default:
+        console.warn('Unknown role:', user.role);
         return [];
     }
   };
@@ -66,22 +72,22 @@ const Sidebar: React.FC = () => {
   const links = getLinks();
 
   return (
-    <aside className="w-64 bg-slate-900 h-[calc(100vh-4rem)] flex-shrink-0 text-white overflow-y-auto">
-      <div className="p-4 space-y-1">
+    <aside className="w-64 bg-[#0f172a] h-full flex flex-col text-white flex-shrink-0 border-r border-slate-800">
+      <div className="p-3 space-y-1 overflow-y-auto mt-4">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-black text-white"
+                  ? "bg-black text-white shadow-md border border-white/10"
                   : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
               )
             }
           >
-            <link.icon size={18} />
+            <link.icon size={20} />
             {link.label}
           </NavLink>
         ))}

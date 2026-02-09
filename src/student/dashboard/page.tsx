@@ -1,186 +1,191 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Clock, QrCode, Bell, ChevronRight,
-  Calendar, Coffee, MapPin, ShoppingBag
+  Calendar, MapPin, ShoppingBag
 } from 'lucide-react';
 import Button from '../../components/common/Button';
+import { useAuth } from '../../store/auth.store';
+import { getUserBookings } from '../../services/booking.service';
 
 const StudentDashboard: React.FC = () => {
-  // Mock Data
-  const studentName = "Siddharth";
-  const mealTime = "Lunch Time"; // Dynamic based on time
-  const hasBooking = true; // Toggle for demo
+  const { user } = useAuth();
+  // Ensure we have a default user name if context is loading or empty
+  const studentName = user?.name || "Siddharth";
 
-  const tokenDetails = {
-    tokenNo: "T-142",
-    slot: "12:30 PM - 12:45 PM",
-    items: ["Veg Meal", "Lime Juice"],
-    status: "Confirmed"
+  const [activeBooking, setActiveBooking] = useState<any>(null);
+
+  useEffect(() => {
+    fetchActiveBooking();
+  }, []);
+
+  const fetchActiveBooking = async () => {
+    try {
+      const bookings = await getUserBookings(true); // Fetch upcoming
+      if (bookings && bookings.length > 0) {
+        // Map backend response to UI structure
+        // Taking the most recent upcoming booking
+        const latest = bookings[0];
+        setActiveBooking({
+          id: latest.bookingId,
+          status: latest.status,
+          token: {
+            tokenId: latest.token?.tokenId || '---',
+            qrCodeImage: latest.token?.qrCode || ''
+          },
+          mealType: latest.mealType,
+          slotTime: new Date(latest.slotTime),
+          endTime: new Date(new Date(latest.slotTime).getTime() + 15 * 60000), // +15 mins
+          canteenName: 'Sopanam', // Default for now
+          items: [latest.mealType || 'Standard Meal']
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch booking", err);
+    }
   };
 
-  const notifications = [
-    { id: 1, text: "Your order T-142 is ready for pickup!", time: "2m ago", urgent: true },
-    { id: 2, text: "New menu items added for tomorrow.", time: "1h ago", urgent: false }
+  // Mock Canteens
+  const canteens = [
+    { id: 'c1', name: 'Sopanam', initial: 'S', color: 'orange', status: 'Open', crowd: 'High Crowd' },
+    { id: 'c2', name: 'Prasada', initial: 'P', color: 'green', status: 'Open', crowd: 'Medium Crowd' },
+    { id: 'c3', name: 'Samudra', initial: 'S', color: 'red', status: 'Closing Soon', crowd: 'Low Crowd' },
   ];
 
-  return (
-    <div className="space-y-6 pb-20"> {/* pb-20 for bottom nav if exists */}
+  const getTimeString = () => "Lunch Time"; // Static for screenshot match
 
-      {/* 1. Header & Welcome */}
+  return (
+    <div className="space-y-6 max-w-5xl mx-auto">
+
+      {/* 1. Header Area with Greeting & Actions */}
       <header className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Hi, {studentName} 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            Hi, {studentName} <span className="text-2xl">👋</span>
+          </h1>
           <div className="flex items-center gap-2 mt-1 text-gray-500">
             <Clock size={16} />
-            <span className="text-sm font-medium">{mealTime}</span>
+            <span className="text-sm font-medium">{getTimeString()}</span>
           </div>
         </div>
+
+        {/* Top Right Icons (Wallet/Notifs) - Visual Only from screenshot */}
         <div className="flex gap-3">
-          <Link to="/student/cart" className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-            <ShoppingBag size={20} className="text-gray-700" />
+          <Link to="/student/cart" className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative">
+            <ShoppingBag size={20} />
           </Link>
-          <Link to="/student/notifications" className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-            <Bell size={20} className="text-gray-700" />
-            {notifications.some(n => n.urgent) && (
-              <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
-            )}
+          <Link to="/student/notifications" className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative">
+            <Bell size={20} />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           </Link>
         </div>
       </header>
 
-      {/* 2. Today's Booking Status */}
+      {/* 2. Your Token Card */}
       <section>
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-bold text-gray-900">Your Token</h2>
-          {hasBooking && (
-            <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">
-              {tokenDetails.status}
+          {activeBooking && (
+            <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+              {activeBooking.status}
             </span>
           )}
         </div>
 
-        {hasBooking ? (
-          <div className="bg-gradient-to-br from-brand to-brand-hover rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-            {/* Decorative circles */}
-            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+        {activeBooking ? (
+          <div className="bg-[#ea580c] text-white rounded-xl shadow-lg relative overflow-hidden">
+            {/* Main Card Content */}
+            <div className="p-6 flex justify-between items-center relative z-10">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-orange-100 text-xs font-bold uppercase tracking-wider mb-1">TOKEN NUMBER</p>
+                  <h3 className="text-6xl font-bold tracking-tight">T-{activeBooking.token.tokenId}</h3>
+                </div>
 
-            <div className="relative z-10 flex justify-between items-center">
-              <div>
-                <p className="text-white/90 text-xs font-medium uppercase tracking-wider mb-1">Token Number</p>
-                <h3 className="text-4xl font-bold mb-4">{tokenDetails.tokenNo}</h3>
-
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-white/90">
+                <div className="space-y-1 mt-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-white/90">
                     <Calendar size={16} />
-                    <span>Today, {tokenDetails.slot}</span>
+                    <span>
+                      {activeBooking.slotTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {activeBooking.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-white/90">
+                  <div className="flex items-center gap-2 text-sm font-medium text-white/90">
                     <MapPin size={16} />
-                    <span>Main Cafeteria</span>
+                    <span>{activeBooking.canteenName}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl shadow-sm">
-                <QrCode size={80} className="text-gray-900" />
+              {/* QR Code */}
+              <div className="bg-white p-2 rounded-xl shadow-sm">
+                {activeBooking.token.qrCodeImage ? (
+                  <img src={activeBooking.token.qrCodeImage} alt="QR" className="w-24 h-24" />
+                ) : (
+                  <QrCode size={100} className="text-gray-900" />
+                )}
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <p className="text-xs text-blue-100 truncate">
-                Items: {tokenDetails.items.join(", ")}
+            {/* Bottom Strip (Items) */}
+            <div className="bg-black/10 px-6 py-3 mt-2 backdrop-blur-sm border-t border-white/10">
+              <p className="text-xs text-orange-50 font-medium">
+                Items: {activeBooking.items.join(', ')}
               </p>
             </div>
           </div>
         ) : (
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
-            <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Coffee size={24} />
-            </div>
-            <h3 className="font-semibold text-gray-900">No active booking</h3>
-            <p className="text-sm text-gray-500 mt-1 mb-4">Hungry? Book a slot to skip the queue.</p>
+          <div className="bg-white p-8 rounded-xl border border-gray-200 text-center shadow-sm">
+            <p className="text-gray-500 mb-4">No active booking found.</p>
             <Link to="/student/booking">
-              <Button size="sm">Book Now</Button>
+              <Button>Book a Slot Now</Button>
             </Link>
           </div>
         )}
       </section>
 
-      {/* 3. Canteen Selection (Replaces Quick Actions) */}
+      {/* 3. Select Canteen */}
       <section>
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-bold text-gray-900">Select Canteen</h2>
-          <Link to="/student/queue" className="text-sm font-medium text-brand hover:text-brand-hover">View Queues</Link>
+          <Link to="/student/queue" className="text-sm font-bold text-orange-600 hover:text-orange-700">View Queues</Link>
         </div>
 
-        <div className="space-y-3">
-          {/* Sopanam */}
-          <Link to="/student/booking?canteenId=c1" className="block bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-full -mr-8 -mt-8 group-hover:bg-orange-100 transition-colors"></div>
-            <div className="relative flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg">S</div>
-                <div>
-                  <h3 className="font-bold text-gray-900">Sopanam</h3>
-                  <p className="text-xs text-green-600 font-medium mt-0.5">Open • High Crowd</p>
+        <div className="grid gap-3">
+          {canteens.map((canteen) => (
+            <Link
+              key={canteen.id}
+              to={`/student/booking?canteenId=${canteen.id}`}
+              className="group block bg-white rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {/* Logo/Initial */}
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl font-bold 
+                        ${canteen.color === 'orange' ? 'bg-orange-100 text-orange-600' :
+                      canteen.color === 'green' ? 'bg-green-100 text-green-600' :
+                        'bg-red-100 text-red-600'}`}>
+                    {canteen.initial}
+                  </div>
+
+                  {/* Details */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base">{canteen.name}</h3>
+                    <p className={`text-xs font-semibold mt-0.5
+                             ${canteen.status === 'Open' ? 'text-green-600' : 'text-red-500'}`}>
+                      {canteen.status} • <span className={
+                        canteen.crowd.includes('High') ? 'text-orange-600' :
+                          canteen.crowd.includes('Medium') ? 'text-yellow-600' : 'text-green-600'
+                      }>{canteen.crowd}</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                  <ChevronRight size={18} className="text-gray-400 group-hover:text-gray-600" />
                 </div>
               </div>
-              <ChevronRight size={20} className="text-gray-300 group-hover:text-orange-500 transition-colors" />
-            </div>
-          </Link>
-
-          {/* Prasada */}
-          <Link to="/student/booking?canteenId=c2" className="block bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-full -mr-8 -mt-8 group-hover:bg-green-100 transition-colors"></div>
-            <div className="relative flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg">P</div>
-                <div>
-                  <h3 className="font-bold text-gray-900">Prasada</h3>
-                  <p className="text-xs text-green-600 font-medium mt-0.5">Open • Medium Crowd</p>
-                </div>
-              </div>
-              <ChevronRight size={20} className="text-gray-300 group-hover:text-green-500 transition-colors" />
-            </div>
-          </Link>
-
-          {/* Samudra */}
-          <Link to="/student/booking?canteenId=c3" className="block bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-light rounded-full -mr-8 -mt-8 group-hover:bg-brand/20 transition-colors"></div>
-            <div className="flex items-center gap-4 relative z-10">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-lg bg-brand-light text-brand flex items-center justify-center font-bold text-lg">S</div>
-                <div>
-                  <h3 className="font-bold text-gray-900">Samudra</h3>
-                  <p className="text-xs text-red-500 font-medium mt-0.5">Closing Soon • Low Crowd</p>
-                </div>
-              </div>
-              <ChevronRight size={20} className="text-gray-300 group-hover:text-brand transition-colors" />
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* 4. Notification Preview */}
-      <section>
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-bold text-gray-900">Recent Updates</h2>
-          <Link to="/student/notifications" className="text-xs font-semibold text-brand hover:text-brand-hover">View All</Link>
-        </div>
-        <div className="space-y-3">
-          {notifications.map(notif => (
-            <div key={notif.id} className={`p-4 rounded-xl border flex gap-3 ${notif.urgent ? "bg-red-50 border-red-100" : "bg-white border-gray-100 shadow-sm"}`}>
-              <div className={`mt-0.5 w-2 h-2 rounded-full ${notif.urgent ? "bg-red-500" : "bg-brand"}`}></div>
-              <div className="flex-1">
-                <p className={`text-sm font-medium ${notif.urgent ? "text-red-900" : "text-gray-900"}`}>
-                  {notif.text}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
-              </div>
-              <ChevronRight size={16} className="text-gray-300 self-center" />
-            </div>
+            </Link>
           ))}
         </div>
       </section>

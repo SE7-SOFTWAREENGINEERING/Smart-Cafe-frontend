@@ -14,11 +14,16 @@ const StudentToken: React.FC = () => {
     const orderDetails = {
         id: location.state?.orderId || '#ORD-9821',
         slot: location.state?.slotTime || '12:30 PM',
-        canteen: 'Sopanam', // Default mock
+        canteen: location.state?.canteen || 'Sopanam',
         date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-        items: location.state?.items || 3,
+        items: location.state?.items || [],
+        totalPrice: location.state?.totalPrice || 0,
         fairnessReason: "You booked 2 hours in advance, securing priority access over walk-ins."
     };
+
+    const itemSummary = orderDetails.items.length > 0
+        ? orderDetails.items.map((i: any) => `${i.quantity} x ${i.name}`).join(', ')
+        : "Standard Meal";
 
     return (
         <div className="pb-24 min-h-screen bg-gray-50 p-6 flex flex-col items-center justify-center text-center">
@@ -32,7 +37,7 @@ const StudentToken: React.FC = () => {
                         <CheckCircle size={32} />
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900">Booking Confirmed!</h1>
-                    <p className="text-gray-500 text-sm">Your items are being prepared.</p>
+                    <p className="text-gray-500 text-xs px-4">{itemSummary}</p>
                 </div>
 
                 <div className="border-t border-b border-gray-100 py-6 space-y-4">
@@ -44,6 +49,12 @@ const StudentToken: React.FC = () => {
 
                     <div className="bg-gray-50 rounded-xl p-3 text-sm font-medium text-gray-700">
                         Order ID: <span className="font-bold text-gray-900">{orderDetails.id}</span>
+                        {orderDetails.totalPrice > 0 && (
+                            <>
+                                <span className="mx-2 text-gray-300">|</span>
+                                <span className="font-bold text-brand">₹{orderDetails.totalPrice}</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -62,7 +73,7 @@ const StudentToken: React.FC = () => {
                         <Calendar className="text-orange-500" size={18} />
                         <span>{orderDetails.date}</span>
                     </div>
-                    
+
                     <div className="h-px bg-gray-100 my-4"></div>
 
                     <div className="flex justify-between items-center mb-1">

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import { useCart } from '../../store/cart.store';
 import {
     ArrowLeft, Clock, Leaf, Trash2, ChevronRight,
     ShoppingBag
@@ -8,46 +9,12 @@ import {
 import { cn } from '../../utils/cn';
 
 // Mock Cart Data
-const INITIAL_CART = [
-    {
-        id: '1',
-        name: 'Masala Dosa',
-        price: 60,
-        portion: 'Regular',
-        quantity: 1,
-        prepTime: 15, // mins
-        ecoScore: 85,
-        imageColor: 'bg-orange-100'
-    },
-    {
-        id: '3',
-        name: 'Chicken Biryani',
-        price: 180,
-        portion: 'Regular',
-        quantity: 1,
-        prepTime: 25, // mins
-        ecoScore: 40,
-        imageColor: 'bg-red-100'
-    },
-    {
-        id: '6',
-        name: 'Samosa',
-        price: 20,
-        portion: 'Regular',
-        quantity: 2,
-        prepTime: 5, // mins
-        ecoScore: 75,
-        imageColor: 'bg-yellow-100'
-    }
-];
+// Mock Cart Data
+
 
 const StudentCart: React.FC = () => {
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState(INITIAL_CART);
-
-    // Calculations
-    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const { items: cartItems, removeFromCart, totalPrice, totalItems } = useCart();
 
     // Prep time is likely the max of individual items (parallel prep) or some heuristic
     // For safety, let's take the max prep time of any single item + 5 mins buffer
@@ -59,7 +26,7 @@ const StudentCart: React.FC = () => {
         : 0;
 
     const handleRemove = (id: string) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
+        removeFromCart(id);
     };
 
     return (
@@ -116,7 +83,7 @@ const StudentCart: React.FC = () => {
                         </div>
                         <h3 className="font-bold text-gray-900">Your cart is empty</h3>
                         <p className="text-sm text-gray-500 mt-2 mb-6">Looks like you haven't added anything yet.</p>
-                        <Button onClick={() => navigate('/student/dashboard')}>Browse Menu</Button>
+                        <Button onClick={() => navigate('/student/booking')}>Browse Menu</Button>
                     </div>
                 )}
             </section>

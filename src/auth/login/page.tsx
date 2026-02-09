@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
     if (isAuthenticated && user && user.role && !hasRedirected.current) {
       hasRedirected.current = true;
       const role = user.role.toLowerCase();
-      if (role === 'user') navigate('/user/dashboard');
+      if (role === 'user' || role === 'student') navigate('/student/dashboard');
       else if (role === 'canteen_staff' || role === 'canteenstaff') navigate('/canteen-staff/dashboard');
       else if (role === 'manager') navigate('/manager/dashboard');
       else if (role === 'admin') navigate('/admin/dashboard');
@@ -42,7 +42,10 @@ const LoginPage: React.FC = () => {
       if (user) {
         const role = user.role?.toLowerCase();
         switch (role) {
-          case 'user': navigate('/user/dashboard'); break;
+          case 'user':
+          case 'student':
+            navigate('/student/dashboard');
+            break;
           case 'canteen_staff':
           case 'canteenstaff': navigate('/canteen-staff/dashboard'); break;
           case 'manager': navigate('/manager/dashboard'); break;

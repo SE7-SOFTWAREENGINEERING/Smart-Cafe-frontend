@@ -19,8 +19,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    // Check for persisted user here if needed (skipping for now)
-    setState(prev => ({ ...prev, isLoading: false }));
+    const initAuth = async () => {
+      try {
+        const user = await AuthService.getCurrentUser();
+        if (user) {
+          setState({ user, isAuthenticated: true, isLoading: false });
+        } else {
+          setState(prev => ({ ...prev, isLoading: false }));
+        }
+      } catch (error) {
+        console.error("Auth init failed", error);
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string) => {

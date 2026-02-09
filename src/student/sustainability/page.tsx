@@ -1,20 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Leaf, Award, Recycle } from 'lucide-react';
 import Button from '../../components/common/Button';
+import { submitFoodWasteReport, getUserSustainabilityStats } from '../../services/sustainability.service';
+import type { SustainabilityStats } from '../../services/sustainability.service';
+import toast from 'react-hot-toast';
 
 const StudentSustainability: React.FC = () => {
   const [wasteMealType, setWasteMealType] = useState('Lunch');
   const [wasteReason, setWasteReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [stats, setStats] = useState<SustainabilityStats>({
+    totalReports: 0,
+    totalImpact: 0,
+    impactPercentage: 0,
+    daysActive: 0
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const data = await getUserSustainabilityStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
 
   const handleWasteReport = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    alert('Waste report submitted. Thank you for your honesty!');
-    setWasteReason('');
+
+    try {
+      await submitFoodWasteReport({
+        meal_type: wasteMealType,
+        reason_for_waste: wasteReason
+      });
+
+      toast.success('Waste report submitted. Thank you for your honesty!');
+      setWasteReason('');
+
+      // Refresh stats
+      await fetchStats();
+    } catch (error) {
+      toast.error('Failed to submit report. Please try again.');
+      console.error('Error submitting report:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -26,7 +61,7 @@ const StudentSustainability: React.FC = () => {
         </div>
         <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold flex items-center gap-2">
           <Leaf size={18} />
-          850 pts
+          {stats.totalImpact} pts
         </div>
       </div>
 
@@ -39,22 +74,22 @@ const StudentSustainability: React.FC = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">Your Impact</h3>
-              <p className="text-sm text-gray-500">You are in the top 15% of sustainable eaters!</p>
+              <p className="text-sm text-gray-500">You are in the top {100 - stats.impactPercentage}% of sustainable eaters!</p>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Zero Waste Streak</span>
-                <span className="font-semibold text-gray-900">5 Days</span>
+                <span className="font-semibold text-gray-900">{stats.daysActive} Days</span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${stats.impactPercentage}%` }}></div>
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 pt-6 border-t border-gray-100">
             <h4 className="font-semibold text-gray-900 mb-3">Dietary Preferences</h4>
             <div className="flex gap-2 flex-wrap">
@@ -80,7 +115,7 @@ const StudentSustainability: React.FC = () => {
           <form onSubmit={handleWasteReport} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Meal Type</label>
-              <select 
+              <select
                 value={wasteMealType}
                 onChange={(e) => setWasteMealType(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
@@ -88,12 +123,13 @@ const StudentSustainability: React.FC = () => {
                 <option>Breakfast</option>
                 <option>Lunch</option>
                 <option>Dinner</option>
+                <option>Other</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Waste</label>
-              <textarea 
+              <textarea
                 value={wasteReason}
                 onChange={(e) => setWasteReason(e.target.value)}
                 placeholder="E.g., Portion too large, Food cold, Taste issue..."
@@ -102,8 +138,8 @@ const StudentSustainability: React.FC = () => {
               />
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-green-600 hover:bg-green-700 focus:ring-green-500"
               isLoading={isSubmitting}
             >

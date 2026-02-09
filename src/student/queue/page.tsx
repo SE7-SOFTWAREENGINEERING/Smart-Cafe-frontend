@@ -4,41 +4,93 @@ import {
   ArrowLeft, Clock, Users, RefreshCw,
   MapPin, Coffee
 } from 'lucide-react';
+import { getUserBookings, getSlots } from '../../services/booking.service';
 
 
 const StudentQueue: React.FC = () => {
   const navigate = useNavigate();
 
-  // Mock State for Queue Simulation
-  // In a real app, this would come from a WebSocket or polling API
-  const [position, setPosition] = useState(5);
-  const [peopleAhead, setPeopleAhead] = useState(4);
-  const [waitTime, setWaitTime] = useState(12); // minutes
-  const [lastUpdated, setLastUpdated] = useState("Just now");
+  const [loading, setLoading] = useState(true);
+  const [queueData, setQueueData] = useState({
+    position: 0,
+    peopleAhead: 0,
+    waitTime: 0,
+    total: 0,
+    canteen: 'Sopanam',
+    lastUpdated: 'Just now',
+    debug: ''
+  });
 
-  // Simulate Queue Movement
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPosition(prev => {
-        if (prev <= 1) return 1; // You're next!
-        const newPos = prev - 1;
-        setPeopleAhead(newPos - 1);
-        setWaitTime(newPos * 2.5); // Approx 2.5 mins per person
-        setLastUpdated("Just now");
-        return newPos;
-      });
-    }, 5000); // Update every 5 seconds for demo
-
+    fetchQueueStatus();
+    const interval = setInterval(fetchQueueStatus, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Update "Last updated" text simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdated("10s ago");
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [position]);
+  const fetchQueueStatus = async () => {
+    try {
+      const bookings = await getUserBookings(false);
+      console.log('Stats: Bookings Fetched:', bookings);
+
+      const activeBookings = bookings.filter(b => b.status === 'Booked');
+      console.log('Stats: Active Bookings:', activeBookings);
+
+      let debugMsg = `Fetched ${bookings.length} bookings. Active: ${activeBookings.length}.`;
+      if (bookings.length > 0) debugMsg += ` Last Status: ${bookings[0].status}`;
+
+      if (activeBookings.length > 0) {
+        // Find the most recent upcoming booking (closest to current time in the future)
+        const now = new Date().getTime();
+        const upcomingBookings = activeBookings
+          .filter(b => new Date(b.slotTime).getTime() >= now)
+          .sort((a, b) => new Date(a.slotTime).getTime() - new Date(b.slotTime).getTime());
+
+        // If no upcoming bookings, use the most recent one
+        const active = upcomingBookings.length > 0 ? upcomingBookings[0] : activeBookings[0];
+
+        const pos = active.queuePosition || 1;
+        const ahead = Math.max(0, pos - 1);
+
+        console.log('Selected booking:', {
+          slotTime: active.slotTime,
+          queuePosition: active.queuePosition,
+          bookingId: active.bookingId
+        });
+
+        // Fetch total booked for this slot
+        let totalBooked = 0;
+        try {
+          const allSlots = await getSlots();
+          const activeTime = new Date(active.slotTime).getTime();
+          const currentSlot = allSlots.find(s => new Date(s._id).getTime() === activeTime);
+          if (currentSlot) {
+            totalBooked = currentSlot.booked;
+          }
+        } catch (err) {
+          console.error("Failed to fetch slot details", err);
+        }
+
+        setQueueData({
+          position: pos,
+          peopleAhead: ahead,
+          waitTime: ahead * 2,
+          total: totalBooked || pos,
+          canteen: 'Sopanam',
+          lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          debug: debugMsg + ` | Position: ${pos}/${totalBooked}`
+        });
+      } else {
+        setQueueData(prev => ({ ...prev, position: 0, peopleAhead: 0, waitTime: 0, total: 0, lastUpdated: new Date().toLocaleTimeString(), debug: debugMsg + " No active 'Booked' status found." }));
+      }
+    } catch (err) {
+      console.error(err);
+      setQueueData(prev => ({ ...prev, debug: 'Error: ' + err }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const { position, peopleAhead, waitTime, total, lastUpdated, canteen, debug } = queueData;
 
   return (
     <div className="pb-24 min-h-screen bg-gray-50 p-6 flex flex-col">
@@ -61,7 +113,7 @@ const StudentQueue: React.FC = () => {
         <p className="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Your Position</p>
         <div className="flex items-baseline justify-center gap-1 mb-6">
           <span className="text-6xl font-black text-gray-900">{position}</span>
-          <span className="text-xl text-gray-400 font-medium">/ 15</span>
+          <span className="text-xl text-gray-400 font-medium">/ {total}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
@@ -90,7 +142,7 @@ const StudentQueue: React.FC = () => {
               <MapPin size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-sm">Sopanam Canteen</h3>
+              <h3 className="font-bold text-gray-900 text-sm">{canteen} Canteen</h3>
               <p className="text-xs text-gray-500">Counter 2 (Meals)</p>
             </div>
           </div>
@@ -113,12 +165,15 @@ const StudentQueue: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Indicator Footer */}
-      <div className="mt-auto flex justify-center">
+      {/* Live Indicator Footer & Debug */}
+      <div className="mt-auto flex flex-col items-center gap-2">
         <div className="flex items-center gap-2 text-xs text-gray-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
           <RefreshCw size={12} className="animate-spin-slow" />
           <span>Updated {lastUpdated}</span>
         </div>
+        {debug && <div className="mt-2 p-2 bg-gray-100 border border-gray-300 rounded text-[10px] text-gray-600 font-mono w-full max-w-md break-all text-center">
+          DEBUG: {debug}
+        </div>}
       </div>
 
     </div>
