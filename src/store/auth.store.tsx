@@ -19,8 +19,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    // Check for persisted user here if needed (skipping for now)
-    setState(prev => ({ ...prev, isLoading: false }));
+    // Check for persisted user
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+
+    if (token && savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setState({
+          user: parsedUser,
+          isAuthenticated: true,
+          isLoading: false
+        });
+      } catch (e) {
+        console.error("Failed to parse saved user", e);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    } else {
+      setState(prev => ({ ...prev, isLoading: false }));
+    }
   }, []);
 
   const login = async (email: string, password: string) => {

@@ -3,45 +3,50 @@ import { API_CONFIG } from './api.config';
 import type { User } from '../types';
 
 export const login = async (email: string, password: string): Promise<User> => {
-  try {
-    const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/login`, {
-      email,
-      password,
-    });
-    
-    // Store token
-    if (response.data.data.token) {
-        localStorage.setItem('token', response.data.data.token);
+    try {
+        const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/login`, {
+            email,
+            password,
+        });
+
+        // Store token
+        if (response.data.data.token) {
+            localStorage.setItem('token', response.data.data.token);
+        }
+
+        // Store user for persistence
+        const user = response.data.data.user;
+        localStorage.setItem('user', JSON.stringify(user));
+
+        return user;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
+        }
+        throw new Error('Login failed. Please check your network connection.');
     }
-    
-    return response.data.data.user;
-  } catch (error: any) {
-    if (error.response && error.response.data && error.response.data.message) {
-      throw new Error(error.response.data.message);
-    }
-    throw new Error('Login failed. Please check your network connection.');
-  }
 };
 
 export const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
 };
 
 export const register = async (name: string, email: string, password: string, role: string): Promise<User> => {
     try {
-      const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/register`, {
-        fullName: name,
-        email,
-        password,
-        role // Send role as is (User, CanteenStaff, Manager, Admin)
-      });
-      
-      // Store token
-      if (response.data.data.token) {
-          localStorage.setItem('token', response.data.data.token);
-      }
-      
-      return response.data.data.user;
+        const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/auth/register`, {
+            fullName: name,
+            email,
+            password,
+            role // Send role as is (User, CanteenStaff, Manager, Admin)
+        });
+
+        // Store token
+        if (response.data.data.token) {
+            localStorage.setItem('token', response.data.data.token);
+        }
+
+        return response.data.data.user;
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
             throw new Error(error.response.data.message);

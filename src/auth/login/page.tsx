@@ -15,17 +15,19 @@ const LoginPage: React.FC = () => {
   // Auto-redirect if already authenticated (runs once on mount)
   const hasRedirected = React.useRef(false);
   React.useEffect(() => {
-    if (isAuthenticated && user && user.role && !hasRedirected.current) {
+    // Only redirect if NOT loading and Authenticated
+    if (!isLoading && isAuthenticated && user && user.role && !hasRedirected.current) {
       hasRedirected.current = true;
       const role = user.role.toLowerCase();
+      console.log('Auto-redirecting logged in user:', role);
+
       if (role === 'user') navigate('/user/dashboard');
       else if (role === 'canteen_staff' || role === 'canteenstaff') navigate('/canteen-staff/dashboard');
       else if (role === 'manager') navigate('/manager/dashboard');
       else if (role === 'admin') navigate('/admin/dashboard');
       else navigate('/');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLoading, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

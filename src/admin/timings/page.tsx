@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Save, Coffee, Smartphone, UserCheck, AlertCircle } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { cn } from '../../utils/cn';
+import { getTimings, updateTiming } from '../../services/admin.service';
+import toast from 'react-hot-toast';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const AdminTimings: React.FC = () => {
+  const [loading, setLoading] = useState(true);
   const [schedule, setSchedule] = useState(DAYS.map(day => ({
     day,
     isOpen: day !== 'Sunday',
@@ -17,9 +20,65 @@ const AdminTimings: React.FC = () => {
   // New Service Mode State
   const [onlineBookingEnabled, setOnlineBookingEnabled] = useState(true);
   const [walkInEnabled, setWalkInEnabled] = useState(true);
+
+  useEffect(() => {
+    fetchTimings();
+  }, []);
+
+  const fetchTimings = async () => {
+    try {
+      setLoading(true);
+      const timings = await getTimings();
+      if (timings && timings.length > 0) {
+        const newSchedule = DAYS.map(day => {
+          const timing = timings.find(t => t.day === day);
+          if (timing) {
+            return {
+              day,
+              isOpen: !timing.is_holiday,
+              openTime: timing.opening_time,
+              closeTime: timing.closing_time,
+              isHoliday: timing.is_holiday
+            };
+          }
+          return { // Default if not found
+            day,
+            isOpen: day !== 'Sunday',
+            openTime: '08:00',
+            closeTime: '20:00',
+            isHoliday: day === 'Sunday'
+          };
+        });
+        setSchedule(newSchedule);
+      }
+    } catch (error) {
+      toast.error('Failed to load timings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const promises = schedule.map(slot => updateTiming({
+        day: slot.day,
+        opening_time: slot.openTime,
+        closing_time: slot.closeTime,
+        is_holiday: slot.isHoliday
+      }));
+
+      await Promise.all(promises);
+      toast.success('Schedule updated successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to save schedule');
+    }
+  };
+
   const handleToggleHoliday = (index: number) => {
     const newSchedule = [...schedule];
     newSchedule[index].isHoliday = !newSchedule[index].isHoliday;
+    newSchedule[index].isOpen = !newSchedule[index].isHoliday;
     setSchedule(newSchedule);
   };
 
@@ -29,6 +88,8 @@ const AdminTimings: React.FC = () => {
     setSchedule(newSchedule);
   };
 
+  if (loading) return <div className="p-10 text-center">Loading timings...</div>;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -36,7 +97,7 @@ const AdminTimings: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Timings & Service Controls</h1>
           <p className="text-sm text-gray-500 mt-1">Configure operating hours and service availability.</p>
         </div>
-        <Button>
+        <Button onClick={handleSave}>
           <Save size={16} className="mr-2" />
           Save Schedule
         </Button>
@@ -97,7 +158,7 @@ const AdminTimings: React.FC = () => {
         <div className={cn("p-6 rounded-xl shadow-sm border transition-colors", walkInEnabled ? "bg-white border-green-100" : "bg-gray-50 border-gray-200")}>
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-lg", walkInEnabled ? "bg-green-50 text-green-600" : "bg-gray-200 text-gray-500")}>
+              <div className={cn("p-2 rounded-lg", walkInEnabled ? "bg-green-50 text-green-600" : "bg-gray-200 text-green-500")}>
                 <UserCheck size={24} />
               </div>
               <div>

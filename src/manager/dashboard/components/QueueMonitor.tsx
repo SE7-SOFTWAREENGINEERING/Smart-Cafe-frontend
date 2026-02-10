@@ -1,8 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Users, AlertCircle, PlayCircle, PauseCircle, RefreshCw } from 'lucide-react';
+import staffService from '../../../services/staff.service';
 
 const QueueMonitor: React.FC = () => {
   const [isQueueActive, setIsQueueActive] = useState(true);
+  const [queueData, setQueueData] = useState<any>(null);
+
+  const fetchQueue = async () => {
+    try {
+      const res = await staffService.getQueueStatus();
+      setQueueData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchQueue();
+    const interval = setInterval(fetchQueue, 30000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const totals = queueData ? queueData.queueStatus.reduce((acc: any, slot: any) => ({
+    waiting: acc.waiting + slot.waiting,
+    completed: acc.completed + slot.completed,
+    noShows: acc.noShows + slot.noShows
+  }), { waiting: 0, completed: 0, noShows: 0 }) : { waiting: 0, completed: 0, noShows: 0 };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
@@ -10,30 +33,30 @@ const QueueMonitor: React.FC = () => {
         <div>
           <h3 className="text-gray-500 text-sm font-medium">Live Queue Status</h3>
           <div className="flex items-center gap-2 mt-2">
-            <h2 className="text-3xl font-bold text-gray-900">42</h2>
-            <div className="flex items-center text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+            <h2 className="text-3xl font-bold text-gray-900">{totals.waiting}</h2>
+            <div className={`flex items-center text-xs font-medium px-2 py-1 rounded-full ${totals.waiting > 20 ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50'}`}>
               <Users size={12} className="mr-1" />
-              High Traffic
+              {totals.waiting > 20 ? 'High Traffic' : 'Normal'}
             </div>
           </div>
         </div>
-        
-        <button className="text-gray-400 hover:text-gray-600 transition">
+
+        <button onClick={fetchQueue} className="text-gray-400 hover:text-gray-600 transition">
           <RefreshCw size={18} />
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-6">
         <div className="text-center p-2 bg-gray-50 rounded-lg">
-          <span className="block text-xl font-bold text-gray-800">128</span>
-          <span className="text-[10px] text-gray-500 uppercase font-semibold">Issued</span>
+          <span className="block text-xl font-bold text-gray-800">{totals.waiting + totals.completed + totals.noShows}</span>
+          <span className="text-[10px] text-gray-500 uppercase font-semibold">Total</span>
         </div>
         <div className="text-center p-2 bg-blue-50 rounded-lg">
-          <span className="block text-xl font-bold text-blue-700">86</span>
+          <span className="block text-xl font-bold text-blue-700">{totals.completed}</span>
           <span className="text-[10px] text-blue-600 uppercase font-semibold">Served</span>
         </div>
         <div className="text-center p-2 bg-red-50 rounded-lg">
-          <span className="block text-xl font-bold text-red-700">5</span>
+          <span className="block text-xl font-bold text-red-700">{totals.noShows}</span>
           <span className="text-[10px] text-red-600 uppercase font-semibold">Expired</span>
         </div>
       </div>
@@ -55,12 +78,12 @@ const QueueMonitor: React.FC = () => {
 
         {/* Controls */}
         <div className="pt-2 flex gap-2">
-          <button 
+          <button
             className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium py-2 rounded-lg transition flex justify-center items-center gap-1"
           >
             <AlertCircle size={14} /> Force Clear
           </button>
-          <button 
+          <button
             onClick={() => setIsQueueActive(!isQueueActive)}
             className={`flex-1 text-xs font-medium py-2 rounded-lg transition flex justify-center items-center gap-1 ${isQueueActive ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
           >

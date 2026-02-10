@@ -34,14 +34,14 @@ const ManagerDashboard = React.lazy(() => import('./manager/dashboard/page'));
 const ManagerForecasts = React.lazy(() => import('./manager/forecasts/page'));
 
 const AdminDashboard = React.lazy(() => import('./admin/dashboard/page'));
-const AdminMenu = React.lazy(() => import('./admin/menu/page'));
-const AdminBookings = React.lazy(() => import('./admin/bookings/page'));
 const AdminRoles = React.lazy(() => import('./admin/roles/page'));
-const AdminTimings = React.lazy(() => import('./admin/timings/page'));
-const AdminCapacity = React.lazy(() => import('./admin/capacity/page'));
 const AdminAccuracy = React.lazy(() => import('./admin/accuracy/page'));
 const AdminSystem = React.lazy(() => import('./admin/system/page'));
 const AdminSettings = React.lazy(() => import('./admin/settings/page'));
+const AdminMenu = React.lazy(() => import('./admin/menu/page'));
+const AdminBookings = React.lazy(() => import('./admin/bookings/page'));
+const AdminTimings = React.lazy(() => import('./admin/timings/page'));
+const AdminCapacity = React.lazy(() => import('./admin/capacity/page'));
 
 function App() {
   return (
@@ -87,18 +87,24 @@ function App() {
                 <Route path="/manager/forecasts" element={<ManagerForecasts />} />
               </Route>
 
+              {/* Shared Admin/Manager Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'manager']} />}>
+                <Route path="/admin/menu" element={<AdminMenu />} />
+                <Route path="/admin/bookings" element={<AdminBookings />} />
+                <Route path="/admin/timings" element={<AdminTimings />} />
+                <Route path="/admin/capacity" element={<AdminCapacity />} />
+              </Route>
+
               {/* Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/menu" element={<AdminMenu />} />
-                <Route path="/admin/bookings" element={<AdminBookings />} />
                 <Route path="/admin/roles" element={<AdminRoles />} />
-                <Route path="/admin/timings" element={<AdminTimings />} />
-                <Route path="/admin/capacity" element={<AdminCapacity />} />
                 <Route path="/admin/accuracy" element={<AdminAccuracy />} />
                 <Route path="/admin/system" element={<AdminSystem />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
               </Route>
+
+
             </Route>
 
             <Route path="/" element={<Navigate to="/auth/login" replace />} />
