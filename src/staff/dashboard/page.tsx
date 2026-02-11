@@ -1,12 +1,55 @@
-import React from 'react';
+
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { LogOut, User } from 'lucide-react';
 import QueueList from './components/QueueList';
-import WalkInControl from './components/WalkInControl';
 import StaffAnnouncements from './components/StaffAnnouncements';
 import ActionLog from './components/ActionLog';
+import type { ActionLogItem } from './components/ActionLog';
+import { staffService } from '../../services/staff.service';
+import type { QueueStatus } from '../../services/staff.service';
+import { useNavigate } from 'react-router-dom';
 
 const StaffDashboard: React.FC = () => {
-  const occupancy = 85; 
+  const navigate = useNavigate();
+  const [occupancy, setOccupancy] = useState(0); 
+  const [queueStats, setQueueStats] = useState<QueueStatus[]>([]);
+  const [logs] = useState<ActionLogItem[]>([]);
+  
+  // Fetch initial data
+  const fetchData = useCallback(async () => {
+      try {
+          const [stats, slots] = await Promise.all([
+              staffService.getQueueStatus(),
+              staffService.getAvailableSlots(new Date().toISOString().split('T')[0])
+          ]);
+          
+          setQueueStats(stats);
+          
+          // Calculate occupancy from slots
+          if (slots.length > 0) {
+              const totalCapacity = slots.reduce((acc, curr) => acc + curr.maxCapacity, 0);
+              const totalBooked = slots.reduce((acc, curr) => acc + curr.bookedCount, 0);
+              setOccupancy(totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0);
+          }
+      } catch (error) {
+          console.error("Failed to fetch dashboard data", error);
+      }
+  }, []);
+
+  useEffect(() => {
+      fetchData();
+      // Poll every 30 seconds for real-time updates
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
+  }, [fetchData]);
+
+
+
+  const handleLogout = () => {
+      // Clear token logic here if implemented
+      navigate('/login');
+  };
 
   return (
     <div className="space-y-6">
@@ -17,7 +60,7 @@ const StaffDashboard: React.FC = () => {
             <User size={20} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Ravi Kumar</h1>
+            <h1 className="text-lg font-bold text-gray-900">Staff Portal</h1>
             <p className="text-xs text-gray-500 font-medium">Counter Staff • <span className="text-green-600">Active Session</span></p>
           </div>
         </div>
@@ -37,7 +80,10 @@ const StaffDashboard: React.FC = () => {
               </div>
             </div>
 
-           <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition">
+           <button 
+             onClick={handleLogout}
+             className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition"
+           >
              <LogOut size={16} /> <span className="hidden sm:inline">Logout</span>
            </button>
         </div>
@@ -46,28 +92,18 @@ const StaffDashboard: React.FC = () => {
       {/* 2. Main Execution Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[calc(100vh-140px)]">
         
-        {/* Left Col: Scanning (Priority) */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-           {/* Token Scanner removed as per request (separate page) */}
-           {/* Token Scanner removed as per request (separate page) */}
-           {/* Scan Token link removed */}
-           <div className="flex-1">
-             <WalkInControl />
-           </div>
-        </div>
-
-        {/* Middle Col: Queue Flow */}
-        <div className="lg:col-span-5 h-[500px] lg:h-auto">
-           <QueueList />
+        {/* Left Col: Queue Flow (Expanded) */}
+        <div className="lg:col-span-8 h-[500px] lg:h-auto">
+           <QueueList queueStats={queueStats} />
         </div>
 
         {/* Right Col: Communication & Logs */}
-        <div className="lg:col-span-3 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col gap-6">
            <div className="flex-none">
               <StaffAnnouncements />
            </div>
            <div className="flex-1 overflow-hidden">
-              <ActionLog />
+              <ActionLog logs={logs} />
            </div>
         </div>
 

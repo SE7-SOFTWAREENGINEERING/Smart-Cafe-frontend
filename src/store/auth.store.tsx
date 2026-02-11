@@ -19,8 +19,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    // Check for persisted user here if needed (skipping for now)
-    setState(prev => ({ ...prev, isLoading: false }));
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verify token and get user details
+          const user = await AuthService.getCurrentUser();
+          setState({ user, isAuthenticated: true, isLoading: false });
+        } catch (error) {
+          console.error("Session expired or invalid:", error);
+          localStorage.removeItem('token');
+          setState({ user: null, isAuthenticated: false, isLoading: false });
+        }
+      } else {
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string) => {

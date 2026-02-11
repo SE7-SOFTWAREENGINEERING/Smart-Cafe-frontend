@@ -1,15 +1,65 @@
 import React, { useState } from 'react';
-import { Scan, Search, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Scan, Search, CheckCircle, Clock, AlertTriangle, User } from 'lucide-react';
+import { staffService } from '../../../services/staff.service';
+import type { ScanTokenResponse } from '../../../services/staff.service';
+
+interface ScanResultData {
+  userName?: string;
+  slotTime?: string;
+  mealType?: string;
+  message?: string;
+}
 
 const TokenScanner: React.FC = () => {
   const [tokenId, setTokenId] = useState('');
   const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'expired' | 'invalid'>('idle');
+  const [scanData, setScanData] = useState<ScanResultData>({});
+  const [loading, setLoading] = useState(false);
 
-  const handleScan = () => {
-    // Simulate scan logic
-    if (tokenId === 'A-405') setScanResult('valid');
-    else if (tokenId === 'B-102') setScanResult('expired');
-    else setScanResult('invalid');
+  const handleScan = async () => {
+    if (!tokenId.trim()) return;
+    
+    setLoading(true);
+    setScanResult('idle');
+    
+    try {
+      const response: ScanTokenResponse = await staffService.scanToken(tokenId.trim());
+      
+      if (response.success && response.access === 'APPROVED') {
+        setScanResult('valid');
+        setScanData({
+          userName: response.data?.userName,
+          slotTime: response.data?.slotTime,
+          mealType: response.data?.mealType
+        });
+      } else {
+        // Determine error type based on message
+        const msg = response.message?.toLowerCase() || '';
+        if (msg.includes('expired') || msg.includes('early')) {
+          setScanResult('expired');
+        } else {
+          setScanResult('invalid');
+        }
+        setScanData({ message: response.message });
+      }
+    } catch (error) {
+      setScanResult('invalid');
+      setScanData({ message: 'Network error. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatSlotTime = (slotTime?: string) => {
+    if (!slotTime) return '';
+    const date = new Date(slotTime);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleReset = () => {
+    setScanResult('idle');
+    setTokenId('');
+    setScanData({});
   };
 
   return (
@@ -26,14 +76,20 @@ const TokenScanner: React.FC = () => {
               placeholder="Scan or Enter Token ID" 
               value={tokenId}
               onChange={(e) => setTokenId(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleScan()}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none font-mono text-lg uppercase"
+              disabled={loading}
             />
           </div>
           <button 
             onClick={handleScan}
-            className="bg-brand text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-hover transition flex items-center gap-2"
+            disabled={loading || !tokenId.trim()}
+            className={`bg-brand text-white px-6 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+              loading || !tokenId.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-hover'
+            }`}
           >
-            <Scan size={20} /> <span className="hidden md:inline">Scan</span>
+            <Scan size={20} className={loading ? 'animate-pulse' : ''} /> 
+            <span className="hidden md:inline">{loading ? 'Scanning...' : 'Scan'}</span>
           </button>
         </div>
 
@@ -50,13 +106,21 @@ const TokenScanner: React.FC = () => {
             <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
               <CheckCircle size={28} />
             </div>
-            <h4 className="text-xl font-bold text-gray-900">{tokenId}</h4>
+            <h4 className="text-xl font-bold text-gray-900">{scanData.userName || tokenId}</h4>
             <p className="text-sm text-green-600 font-medium flex items-center justify-center gap-1 mt-1">
-              <CheckCircle size={14} /> Valid Token
+              <CheckCircle size={14} /> Entry Approved
             </p>
-            <div className="mt-4 flex gap-2">
-              <button className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition">
-                Approve Entry
+            {scanData.slotTime && (
+              <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
+                <Clock size={12} /> {formatSlotTime(scanData.slotTime)} • {scanData.mealType}
+              </p>
+            )}
+            <div className="mt-4">
+              <button 
+                onClick={handleReset}
+                className="text-sm text-brand hover:underline"
+              >
+                Scan Next
               </button>
             </div>
           </div>
@@ -69,11 +133,14 @@ const TokenScanner: React.FC = () => {
             </div>
             <h4 className="text-xl font-bold text-gray-900">{tokenId}</h4>
             <p className="text-sm text-red-600 font-medium flex items-center justify-center gap-1 mt-1">
-              <Clock size={14} /> Expired (Slot: 12:00 PM)
+              <Clock size={14} /> {scanData.message || 'Token Expired'}
             </p>
-            <div className="mt-4 flex gap-2">
-              <button className="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg font-medium hover:bg-gray-50 transition">
-                Reject
+            <div className="mt-4 flex gap-2 justify-center">
+              <button 
+                onClick={handleReset}
+                className="bg-white border border-gray-200 text-gray-600 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition"
+              >
+                Dismiss
               </button>
             </div>
           </div>
@@ -86,10 +153,10 @@ const TokenScanner: React.FC = () => {
             </div>
             <h4 className="text-xl font-bold text-gray-900">{tokenId || 'Unknown'}</h4>
              <p className="text-sm text-gray-500 font-medium mt-1">
-              Token not found or invalid
+              {scanData.message || 'Token not found or invalid'}
             </p>
             <div className="mt-4">
-               <button onClick={() => setScanResult('idle')} className="text-sm text-brand hover:underline">Try Again</button>
+               <button onClick={handleReset} className="text-sm text-brand hover:underline">Try Again</button>
             </div>
           </div>
         )}

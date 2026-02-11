@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Button from '../../components/common/Button';
-import { Megaphone, Trash2, Clock, AlertTriangle } from 'lucide-react';
+import { Megaphone, Trash2, Clock, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { staffService } from '../../services/staff.service';
+import toast from 'react-hot-toast';
 
 interface Announcement {
     id: number;
@@ -11,26 +13,39 @@ interface Announcement {
 }
 
 const StaffAnnouncements: React.FC = () => {
-  const [activeAnnouncements, setActiveAnnouncements] = useState<Announcement[]>([
-    { id: 1, message: "Lunch service will be delayed by 10 mins due to maintenance.", isPriority: true, timestamp: "10 mins ago" },
-    { id: 2, message: "Special Falafel Wrap available at Counter 3 today!", isPriority: false, timestamp: "1 hour ago" }
-  ]);
+  const [activeAnnouncements, setActiveAnnouncements] = useState<Announcement[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isPriority, setIsPriority] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  const handleBroadcast = () => {
+  const handleBroadcast = async () => {
     if (!newMessage.trim()) return;
     
-    const newAnnouncement: Announcement = {
-        id: Date.now(),
-        message: newMessage,
-        isPriority,
-        timestamp: "Just now"
-    };
+    setIsSending(true);
+    try {
+      const response = await staffService.sendAnnouncement(newMessage, isPriority);
+      
+      if (response.success) {
+        const newAnnouncement: Announcement = {
+          id: Date.now(),
+          message: newMessage,
+          isPriority,
+          timestamp: "Just now"
+        };
 
-    setActiveAnnouncements([newAnnouncement, ...activeAnnouncements]);
-    setNewMessage("");
-    setIsPriority(false);
+        setActiveAnnouncements([newAnnouncement, ...activeAnnouncements]);
+        setNewMessage("");
+        setIsPriority(false);
+        toast.success('Announcement broadcast successfully!');
+      } else {
+        toast.error(response.message || 'Failed to send announcement');
+      }
+    } catch (error: any) {
+      console.error('Error broadcasting announcement:', error);
+      toast.error(error.response?.data?.message || 'Failed to broadcast announcement');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const deleteAnnouncement = (id: number) => {
@@ -60,6 +75,7 @@ const StaffAnnouncements: React.FC = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-32 resize-none"
                     placeholder="e.g. Special menu available for lunch today..."
+                    disabled={isSending}
                 />
                 </div>
                 
@@ -69,14 +85,27 @@ const StaffAnnouncements: React.FC = () => {
                             type="checkbox" 
                             checked={isPriority} 
                             onChange={(e) => setIsPriority(e.target.checked)}
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" 
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            disabled={isSending}
                         />
                         <span className="text-sm text-gray-700">Mark as High Priority</span>
                     </label>
                 </div>
 
                 <div className="flex justify-end pt-2">
-                    <Button onClick={handleBroadcast} disabled={!newMessage.trim()}>Broadcast Message</Button>
+                    <Button 
+                      onClick={handleBroadcast} 
+                      disabled={!newMessage.trim() || isSending}
+                    >
+                      {isSending ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin mr-2" />
+                          Sending...
+                        </>
+                      ) : (
+                        'Broadcast Message'
+                      )}
+                    </Button>
                 </div>
             </div>
         </div>

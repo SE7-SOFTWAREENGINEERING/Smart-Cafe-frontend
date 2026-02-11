@@ -15,12 +15,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   }
 
   if (!isAuthenticated || !user) {
+    console.log('ProtectedRoute: Not authenticated', { isAuthenticated, user });
     return <Navigate to="/auth/login" replace />;
   }
 
   const userRole = user.role?.toLowerCase() as Role;
+  console.log('ProtectedRoute: Checking access', { userRole, allowedRoles });
   
   if (!allowedRoles.map(r => r.toLowerCase()).includes(userRole)) {
+    console.warn('ProtectedRoute: Access denied', { userRole, allowedRoles });
     // Redirect to their specific dashboard based on their role
     // or a 403 Access Denied page. For now, redirect to their role dashboard.
     switch (userRole) {

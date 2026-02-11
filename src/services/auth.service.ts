@@ -81,3 +81,21 @@ export const resetPassword = async (email: string, otp: string, password: string
     }
 };
 
+
+export const getCurrentUser = async (): Promise<User> => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
+
+        const response = await axios.get(`${API_CONFIG.MAIN_BACKEND_URL}/auth/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return response.data.data.user;
+    } catch (error: any) {
+        if (error.response?.data?.message) throw new Error(error.response.data.message);
+        throw new Error('Failed to fetch user profile');
+    }
+};

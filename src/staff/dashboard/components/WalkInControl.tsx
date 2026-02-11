@@ -1,9 +1,35 @@
 import React, { useState } from 'react';
-import { UserPlus, UserMinus, ShieldAlert } from 'lucide-react';
+import { UserPlus, ShieldAlert, Loader } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const WalkInControl: React.FC = () => {
-  const [walkIns, setWalkIns] = useState(12);
-  const [capacityFull, setCapacityFull] = useState(false);
+interface WalkInControlProps {
+    onIssueToken: (email: string, mealType: string) => Promise<boolean>;
+}
+
+const WalkInControl: React.FC<WalkInControlProps> = ({ onIssueToken }) => {
+  const [email, setEmail] = useState('');
+  const [mealType, setMealType] = useState('Lunch'); // Default, could be dynamic
+  const [loading, setLoading] = useState(false);
+  const [capacityFull, setCapacityFull] = useState(false); // Can be driven by props if needed
+
+  const handleIssue = async () => {
+      if (!email) {
+          toast.error('Please enter User Email');
+          return;
+      }
+      setLoading(true);
+      try {
+          const success = await onIssueToken(email, mealType);
+          if (success) {
+              setEmail('');
+              toast.success('Walk-in token issued!');
+          }
+      } catch (error) {
+           console.error(error);
+      } finally {
+          setLoading(false);
+      }
+  };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
@@ -17,24 +43,37 @@ const WalkInControl: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-3xl font-bold text-gray-900">{walkIns} <span className="text-sm font-normal text-gray-400">issued</span></p>
+      <div className="flex flex-col gap-3 mb-6">
+        <input 
+            type="email" 
+            placeholder="User Email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand"
+        />
+        <select 
+            value={mealType}
+            onChange={(e) => setMealType(e.target.value)}
+            className="w-full p-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand"
+        >
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Snacks">Snacks</option>
+            <option value="Dinner">Dinner</option>
+        </select>
         
-        <div className="flex items-center gap-1">
-             <button 
-               onClick={() => setWalkIns(Math.max(0, walkIns - 1))}
-               className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-gray-600"
-             >
-               <UserMinus size={18} />
-             </button>
-             <button 
-               onClick={() => !capacityFull && setWalkIns(walkIns + 1)}
-               disabled={capacityFull}
-               className={`p-2 rounded-lg transition text-white ${capacityFull ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand hover:bg-brand-hover'}`}
-             >
-               <UserPlus size={18} />
-             </button>
-        </div>
+        <button 
+           onClick={handleIssue}
+           disabled={loading || capacityFull}
+           className={`w-full p-3 rounded-lg transition text-white font-medium flex items-center justify-center gap-2 ${
+               loading || capacityFull 
+               ? 'bg-gray-300 cursor-not-allowed' 
+               : 'bg-brand hover:bg-brand-hover'
+           }`}
+        >
+           {loading ? <Loader size={18} className="animate-spin" /> : <UserPlus size={18} />}
+           Issue Token
+        </button>
       </div>
 
       {capacityFull ? (
