@@ -2,26 +2,32 @@ import axios from 'axios';
 import { API_CONFIG } from './api.config';
 
 // Types
-export interface MenuItem {
-  _id: string;
-  itemName: string;
-  isVeg: boolean;
-  description?: string;
-  category: string;
-  nutritionalInfo?: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
+import type { MenuItem } from '../types';
+
+// Helper to map backend item to frontend item
+const mapToFrontendItem = (item: any): MenuItem => ({
+  id: item._id, // Map _id to id
+  name: item.itemName, // Map itemName to name
+  price: item.price || 0,
+  // isVeg: item.isVeg, // Not in frontend type
+  description: item.description,
+  // category: item.category, // Not in frontend type (uses mealType instead)
+  // Ensure Title Case for frontend (e.g. 'LUNCH' -> 'Lunch')
+  mealType: (item.mealType ? item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1).toLowerCase() : 'Lunch') as any, // Default or mapped
+  dietaryType: item.dietaryType || (item.isVeg ? 'Veg' : 'Non-Veg'),
+  allergens: item.allergens || [],
+  ecoScore: item.ecoScore || item.nutritionalInfo?.ecoScore || 'C',
+  portionSize: item.portionSize || 'Regular',
+  isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
+});
+
 
 export interface Menu {
   _id: string;
   menuDate: string;
   mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER';
   isActive: boolean;
-  items?: MenuItem[];
+  items?: any[]; // Keep flexible for backend raw items
 }
 
 // ========== PUBLIC/STUDENT ENDPOINTS ==========
@@ -29,7 +35,8 @@ export interface Menu {
 export const getMenuItems = async (): Promise<MenuItem[]> => {
   try {
     const response = await axios.get(`${API_CONFIG.MAIN_BACKEND_URL}/menu`);
-    return response.data;
+    // Legacy endpoint might need mapping too if used, but for now focusing on admin
+    return response.data.map(mapToFrontendItem);
   } catch (error) {
     console.error('Error fetching menu items:', error);
     throw error;
@@ -69,9 +76,23 @@ export const getMenuItemById = async (itemId: string): Promise<MenuItem> => {
     const response = await axios.get(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items/${itemId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    return response.data.data;
+    return mapToFrontendItem(response.data.data);
   } catch (error) {
     console.error('Error fetching menu item:', error);
+    throw error;
+  }
+};
+
+export const getDailyItems = async (date?: string): Promise<MenuItem[]> => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items/daily`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { date }
+    });
+    return response.data.data.map(mapToFrontendItem);
+  } catch (error) {
+    console.error('Error fetching daily items:', error);
     throw error;
   }
 };
@@ -116,13 +137,19 @@ export const deleteMenu = async (menuId: string): Promise<void> => {
   }
 };
 
-export const createMenuItem = async (data: Partial<MenuItem> & { menuId: string }): Promise<MenuItem> => {
+export const createMenuItem = async (data: Partial<MenuItem> & { menuId?: string; date?: string; mealType?: string }): Promise<MenuItem> => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items`, data, {
+    // Map frontend fields back to backend fields for creation
+    const payload = {
+      ...data,
+      itemName: data.name, // Map name to itemName
+      // other fields map naturally or are handled by backend leniently
+    };
+    const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    return response.data.data;
+    return mapToFrontendItem(response.data.data);
   } catch (error) {
     console.error('Error creating menu item:', error);
     throw error;
@@ -132,10 +159,14 @@ export const createMenuItem = async (data: Partial<MenuItem> & { menuId: string 
 export const updateMenuItem = async (itemId: string, data: Partial<MenuItem>): Promise<MenuItem> => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.put(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items/${itemId}`, data, {
+    const payload = {
+      ...data,
+      itemName: data.name,
+    };
+    const response = await axios.put(`${API_CONFIG.MAIN_BACKEND_URL}/menu/items/${itemId}`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    return response.data.data;
+    return mapToFrontendItem(response.data.data);
   } catch (error) {
     console.error('Error updating menu item:', error);
     throw error;

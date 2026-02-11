@@ -1,87 +1,113 @@
 import React, { useState } from 'react';
 import Button from '../../components/common/Button';
 import { Search, Save, Edit2, Filter, Trash2, AlertTriangle, LogOut, X, Plus } from 'lucide-react';
-import type { Role } from '../../types';
+import type { Role, User } from '../../types';
 
-interface UserRow {
-  id: number;
-  name: string;
-  email: string;
-  role: Role;
-  status: 'Active' | 'Suspended';
-  isOnline?: boolean;
-}
+import { getUsers, createUser, updateUserRole, updateUserStatus, deleteUser } from '../../services/user.service';
+import toast from 'react-hot-toast';
 
-const MOCK_USERS: UserRow[] = [
-  { id: 1, name: 'John Doe', email: 'john@college.edu', role: 'user', status: 'Active', isOnline: true },
-  { id: 2, name: 'Sarah Smith', email: 'sarah@admin.edu', role: 'admin', status: 'Active', isOnline: true },
-  { id: 3, name: 'Mike Johnson', email: 'mike@staff.edu', role: 'counter_staff', status: 'Active', isOnline: true },
-  { id: 4, name: 'Emily Davis', email: 'emily@manager.edu', role: 'manager', status: 'Suspended', isOnline: false },
-  { id: 5, name: 'Chef Gordon', email: 'gordon@kitchen.edu', role: 'kitchen_staff', status: 'Active', isOnline: false },
-  { id: 6, name: 'Lisa Wilson', email: 'lisa@staff.edu', role: 'canteen_staff', status: 'Active', isOnline: true }
-];
+// Removed MOCK_USERS
 
 const AdminRoles: React.FC = () => {
-  const [users, setUsers] = useState(MOCK_USERS);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [editingId, setEditingId] = useState<number | string | null>(null);
   const [tempRole, setTempRole] = useState<Role | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<Role | 'all'>('all');
 
-  // Add User Modal State
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'user' as Role });
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'user' as Role, password: '' });
 
-  const handleEdit = (user: UserRow) => {
+  const fetchUsers = async () => {
+    try {
+      // setLoading(true);
+      const data = await getUsers();
+      setUsers(data);
+    } catch (error) {
+      toast.error('Failed to load users');
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleEdit = (user: User) => {
     setEditingId(user.id);
     setTempRole(user.role);
   };
 
-  const handleSave = (id: number) => {
+  const handleSave = async (id: number | string) => {
     if (tempRole) {
-      setUsers(users.map(u => u.id === id ? { ...u, role: tempRole } : u));
-      setEditingId(null);
-      setTempRole(null);
+      try {
+        await updateUserRole(id, tempRole);
+        toast.success('Role updated');
+        fetchUsers();
+        setEditingId(null);
+        setTempRole(null);
+      } catch (error) {
+        toast.error('Failed to update role');
+      }
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number | string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(u => u.id !== id));
+      try {
+        await deleteUser(id);
+        toast.success('User deleted');
+        fetchUsers();
+      } catch (error) {
+        toast.error('Failed to delete user');
+      }
     }
   };
 
-  const handleToggleStatus = (id: number) => {
-    setUsers(users.map(u => u.id === id ? { ...u, status: u.status === 'Active' ? 'Suspended' : 'Active' } : u));
+  const handleToggleStatus = async (id: number | string, currentStatus: string) => {
+    const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
+    try {
+      await updateUserStatus(id, newStatus);
+      toast.success(`User ${newStatus}`);
+      fetchUsers();
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
   };
 
-  const handleForceLogout = (id: number) => {
+  const handleForceLogout = (_id: number | string) => {
     if (window.confirm('Force logout this user? They will be required to sign in again.')) {
-      setUsers(users.map(u => u.id === id ? { ...u, isOnline: false } : u));
+      // Logic for force logout (backend token invalidation) would go here
+      // For now, client-side only reflection if we had realtime, but mostly this does nothing without backend support
+      toast.success('User looged out (simulated)');
       alert('User has been logged out.');
     }
   };
 
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user: UserRow = {
-      id: users.length + 1,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      status: 'Active',
-      isOnline: false
-    };
-    setUsers([...users, user]);
-    setIsAddUserOpen(false);
-    setNewUser({ name: '', email: '', role: 'user' });
-    alert(`Account created for ${user.name} as ${user.role}`);
+    try {
+      await createUser(newUser);
+      toast.success(`Account created for ${newUser.name}`);
+      setIsAddUserOpen(false);
+      setNewUser({ name: '', email: '', role: 'user', password: '' });
+      fetchUsers();
+    } catch (error) {
+      toast.error('Failed to create user');
+    }
   };
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+
+    // Normalize roles for comparison (backend might return Uppercase or different casing)
+    const normalizedUserRole = user.role.toLowerCase().replace('_', '');
+    const normalizedFilter = roleFilter.toLowerCase().replace('_', '');
+
+    const matchesRole = roleFilter === 'all' || normalizedUserRole === normalizedFilter || user.role === roleFilter;
+
     return matchesSearch && matchesRole;
   });
 
@@ -183,7 +209,7 @@ const AdminRoles: React.FC = () => {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => handleToggleStatus(user.id)}
+                      onClick={() => handleToggleStatus(user.id, user.status || 'Active')}
                       className={`relative inline-flex items-center h-5 rounded-full w-9 transition-colors focus:outline-none ${user.status === 'Active' ? 'bg-green-500' : 'bg-gray-300'}`}
                     >
                       <span className={`${user.status === 'Active' ? 'translate-x-5' : 'translate-x-1'} inline-block w-3 h-3 transform bg-white rounded-full transition-transform`} />
@@ -259,6 +285,17 @@ const AdminRoles: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   value={newUser.email}
                   onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input
+                  required
+                  type="password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  value={newUser.password}
+                  onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                  placeholder="Set initial password"
                 />
               </div>
               <div>

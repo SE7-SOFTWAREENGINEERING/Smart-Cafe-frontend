@@ -27,7 +27,6 @@ const Sidebar: React.FC = () => {
   const getLinks = () => {
     // Normalize role to lowercase for case-insensitive matching
     const role = (user.role || '').toLowerCase();
-
     switch (role) {
       case 'user':
       case 'student':

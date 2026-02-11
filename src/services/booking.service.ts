@@ -9,10 +9,11 @@ export interface Slot {
   booked: number;
 }
 
-export const getSlots = async (): Promise<Slot[]> => {
+export const getSlots = async (canteen: string = 'Sopanam'): Promise<Slot[]> => {
   try {
     const token = localStorage.getItem('token');
     const response = await axios.get(`${API_CONFIG.MAIN_BACKEND_URL}/bookings/available-slots`, {
+      params: { canteen },
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -31,12 +32,13 @@ export const getSlots = async (): Promise<Slot[]> => {
   }
 };
 
-export const bookSlot = async (slotId: string, userId: string, mealType: string = 'Lunch', items: string[] = []) => {
+export const bookSlot = async (slotId: string, mealType: string = 'Lunch', canteen: string = 'Sopanam', items: string[] = []) => {
   try {
     const token = localStorage.getItem('token');
     const response = await axios.post(`${API_CONFIG.MAIN_BACKEND_URL}/bookings`, {
       slot_time: slotId,
       meal_type: mealType,
+      canteen: canteen,
       items: items
     }, {
       headers: { Authorization: `Bearer ${token}` }

@@ -72,9 +72,9 @@ const StudentSlots: React.FC = () => {
         setIsBooking(true);
 
         try {
-            // Call API
+            // Call API with correct parameters: slotId, mealType, canteen, items
             const itemNames = items.map(i => i.name);
-            await bookSlot(selectedSlot.id, user.id, 'Lunch', itemNames);
+            await bookSlot(selectedSlot.id, 'Lunch', 'Sopanam', itemNames);
 
             toast.success("Booking confirmed!");
             setIsModalOpen(false);
