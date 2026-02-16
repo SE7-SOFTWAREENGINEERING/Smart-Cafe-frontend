@@ -708,3 +708,4 @@ const AdminBookings: React.FC = () => {
 };
 
 export default AdminBookings;
+
