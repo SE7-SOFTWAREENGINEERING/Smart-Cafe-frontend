@@ -219,4 +219,3 @@ const QueueMonitor: React.FC<Props> = ({ canteenId }) => {
 };
 
 export default QueueMonitor;
-
