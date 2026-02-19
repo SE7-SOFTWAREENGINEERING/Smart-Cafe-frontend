@@ -690,3 +690,4 @@ const ManagerForecasts: React.FC = () => {
 };
 
 export default ManagerForecasts;
+
