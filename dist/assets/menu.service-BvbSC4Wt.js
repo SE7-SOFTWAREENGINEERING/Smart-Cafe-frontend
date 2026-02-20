@@ -1,0 +1,1 @@
+import{D as a}from"./index-CdQNhWM3.js";const m=async e=>{const t=await a.get("/menu-items",{params:e});return t.data.data?.menuItems||t.data.data||[]},o=async e=>(await a.post("/menu-items",e)).data.data,r=async(e,t)=>(await a.patch(`/menu-items/${e}`,t)).data.data,c=async e=>{await a.delete(`/menu-items/${e}`)};export{o as c,c as d,m as g,r as u};

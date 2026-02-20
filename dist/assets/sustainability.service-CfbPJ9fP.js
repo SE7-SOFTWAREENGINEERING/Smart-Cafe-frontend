@@ -1,0 +1,1 @@
+import{D as s}from"./index-CdQNhWM3.js";const n=async t=>(await s.post("/sustainability/waste-report",t)).data.data,r=async t=>(await s.get("/sustainability/my-reports",{params:t})).data.data,i=async t=>(await s.get("/sustainability/stats",{params:t})).data.data,o=async()=>(await s.get("/sustainability/metrics")).data.data;export{r as a,i as b,o as g,n as s};
