@@ -157,3 +157,4 @@ const StaffScanHistory: React.FC = () => {
 };
 
 export default StaffScanHistory;
+
