@@ -117,3 +117,4 @@ const VerifyOtpPage: React.FC = () => {
 };
 
 export default VerifyOtpPage;
+
