@@ -436,4 +436,3 @@ const StudentSlots: React.FC = () => {
 };
 
 export default StudentSlots;
-
