@@ -11,7 +11,7 @@ import { getUserBookings } from '../../services/booking.service';
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   // Ensure we have a default user name if context is loading or empty
-  const studentName = user?.name || "Siddharth";
+  const studentName = user?.name || "Student";
 
   const [activeBooking, setActiveBooking] = useState<any>(null);
 

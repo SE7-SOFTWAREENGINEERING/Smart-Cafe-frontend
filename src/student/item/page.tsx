@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import {
@@ -6,62 +6,53 @@ import {
     Minus, Plus, CheckCircle
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
-
-// Mock Data (Duplicated from Booking page for demo simplicity)
-const MENU_ITEMS: any[] = [
-    {
-        id: '1',
-        name: 'Masala Dosa',
-        description: "Crispy rice crepe filled with spiced potato masala. Served with coconut chutney and sambar.",
-        prepTime: "15 mins",
-        price: { regular: 60 },
-        type: 'Veg',
-        calories: 320,
-        allergens: [],
-        ecoScore: 85,
-        ecoReason: "Locally sourced rice and lentils. Low carbon footprint.",
-        imageColor: 'bg-orange-100'
-    },
-    {
-        id: '3',
-        name: 'Chicken Biryani',
-        description: "Aromatic basmati rice cooked with tender chicken pieces and authentic spices.",
-        prepTime: "25 mins",
-        price: { small: 120, regular: 180 },
-        type: 'Non-Veg',
-        calories: 650,
-        allergens: [],
-        ecoScore: 40,
-        ecoReason: "Chicken production has a higher carbon footprint.",
-        imageColor: 'bg-red-100'
-    },
-    // Fallback item for others
-    {
-        id: 'default',
-        name: 'Delicious Item',
-        description: "A tasty delight prepared fresh for you.",
-        prepTime: "10 mins",
-        price: { regular: 100 },
-        type: 'Veg',
-        calories: 200,
-        allergens: ['Dairy'],
-        ecoScore: 70,
-        ecoReason: "Standard sustainable practices.",
-        imageColor: 'bg-gray-100'
-    }
-];
+import { getMenuItemById } from '../../services/menu.service';
+import type { MenuItem } from '../../types';
 
 const StudentItemDetail: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const item = MENU_ITEMS.find(i => i.id === id) || MENU_ITEMS.find(i => i.id === 'default');
 
-    const [portion, setPortion] = useState<'small' | 'regular'>(item.price.small ? 'regular' : 'regular');
+    const [item, setItem] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [portion, setPortion] = useState<'small' | 'regular'>('regular');
     const [quantity, setQuantity] = useState(1);
     const [isAdding, setIsAdding] = useState(false);
 
+    useEffect(() => {
+        const fetchItem = async () => {
+            try {
+                if (id) {
+                    const data = await getMenuItemById(id);
+                    setItem(data);
+                    if (data.price?.small) {
+                        setPortion('regular');
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch item", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchItem();
+    }, [id]);
+
+    if (loading) {
+        return <div className="p-10 text-center text-gray-500">Loading item details...</div>;
+    }
+
+    if (!item) {
+        return (
+            <div className="p-10 text-center">
+                <p className="text-gray-500 mb-4">Item not found.</p>
+                <Button onClick={() => navigate(-1)}>Go Back</Button>
+            </div>
+        );
+    }
+
     // Price Calculation
-    const currentPrice = portion === 'small' ? item.price.small : item.price.regular;
+    const currentPrice = portion === 'small' && item.price?.small ? item.price.small : item.price?.regular || 0;
     const totalPrice = currentPrice * quantity;
 
     const handleAddToCart = () => {

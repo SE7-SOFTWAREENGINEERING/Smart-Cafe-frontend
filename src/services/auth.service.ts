@@ -62,8 +62,15 @@ export const register = async (name: string, email: string, password: string, ro
 
         return response.data.data.user;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            throw new Error(error.response.data.message);
+        if (error.response && error.response.data) {
+            const data = error.response.data;
+            if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+                const msgs = data.errors.map((e: any) => e.message).join(', ');
+                throw new Error(`Validation error: ${msgs}`);
+            }
+            if (data.message) {
+                throw new Error(data.message);
+            }
         }
         throw new Error('Registration failed. Please check your network connection.');
     }

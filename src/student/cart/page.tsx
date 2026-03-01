@@ -8,8 +8,6 @@ import {
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-// Mock Cart Data
-// Mock Cart Data
 
 
 const StudentCart: React.FC = () => {

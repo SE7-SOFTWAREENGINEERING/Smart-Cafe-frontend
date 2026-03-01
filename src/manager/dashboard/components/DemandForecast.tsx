@@ -1,9 +1,30 @@
-import React, { useState } from 'react';
-import { TrendingUp, Sun, Calendar, Info, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, Sun, Calendar, Info, Check, X, ChevronDown, ChevronUp, Loader2, AlertCircle } from 'lucide-react';
+import { getAnalytics } from '../../../services/forecast.service';
 
 const DemandForecast: React.FC = () => {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showAIRecommendation, setShowAIRecommendation] = useState(true);
+  const [demand, setDemand] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchForecast = async () => {
+      try {
+        setLoading(true);
+        const data = await getAnalytics();
+        setDemand(data.average_demand || 1250); // Fallback to a base number if response lacks it, but normally we prefer the metric
+        setError(null);
+      } catch (err: any) {
+        console.error('Forecast ML fetch failed:', err);
+        setError('Prediction Server Offline');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchForecast();
+  }, []);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
@@ -11,8 +32,18 @@ const DemandForecast: React.FC = () => {
         <div>
           <h3 className="text-gray-500 text-sm font-medium">Predicted Demand</h3>
           <div className="flex items-baseline gap-2 mt-2">
-            <h2 className="text-3xl font-bold text-gray-900">1,250</h2>
-            <span className="text-sm text-gray-500">meals</span>
+            {loading ? (
+              <Loader2 className="animate-spin text-brand" size={28} />
+            ) : error ? (
+              <div className="flex items-center text-red-500 text-sm font-medium gap-1">
+                <AlertCircle size={16} /> {error}
+              </div>
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold text-gray-900">{demand}</h2>
+                <span className="text-sm text-gray-500">meals</span>
+              </>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end">
@@ -30,10 +61,10 @@ const DemandForecast: React.FC = () => {
           <TrendingUp size={14} className="mr-1" />
           +12%
         </span>
-        <span className="text-xs text-gray-400">vs last week (1,115)</span>
+        <span className="text-xs text-gray-400">vs last week</span>
       </div>
 
-      {showAIRecommendation && (
+      {!error && showAIRecommendation && (
         <div className="bg-brand-light border border-brand/20 rounded-lg p-3 mb-4">
           <div className="flex items-start gap-2">
             <div className="mt-0.5 text-brand"><Info size={16} /></div>
@@ -41,13 +72,13 @@ const DemandForecast: React.FC = () => {
               <p className="text-xs font-medium text-gray-900">AI Recommendation</p>
               <p className="text-xs text-brand-hover mt-0.5">Prepare 15% more North Indian Thali due to exam schedule.</p>
               <div className="flex gap-2 mt-2">
-                <button 
+                <button
                   onClick={() => setShowAIRecommendation(false)}
                   className="bg-brand text-white text-xs px-2 py-1 rounded hover:bg-brand-hover transition flex items-center gap-1"
                 >
                   <Check size={12} /> Accept
                 </button>
-                <button 
+                <button
                   onClick={() => setShowAIRecommendation(false)}
                   className="bg-white text-gray-600 border border-gray-200 text-xs px-2 py-1 rounded hover:bg-gray-50 transition flex items-center gap-1"
                 >
@@ -60,14 +91,14 @@ const DemandForecast: React.FC = () => {
       )}
 
       <div className="border-t border-gray-100 pt-4">
-        <button 
+        <button
           onClick={() => setShowBreakdown(!showBreakdown)}
           className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900"
         >
           <span>Meal-wise Breakdown</span>
           {showBreakdown ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
-        
+
         {showBreakdown && (
           <div className="mt-3 space-y-2">
             <div className="flex justify-between items-center text-sm">
@@ -77,7 +108,7 @@ const DemandForecast: React.FC = () => {
             <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
               <div className="bg-orange-500 h-full rounded-full" style={{ width: '45%' }}></div>
             </div>
-            
+
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500">South Indian Meals</span>
               <span className="font-medium text-gray-900">320</span>
@@ -93,7 +124,7 @@ const DemandForecast: React.FC = () => {
             <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
               <div className="bg-red-500 h-full rounded-full" style={{ width: '25%' }}></div>
             </div>
-            
+
             <button className="text-xs text-brand font-medium mt-2 hover:underline">
               View Item-wise Details &rarr;
             </button>

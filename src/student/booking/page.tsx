@@ -77,41 +77,18 @@ const StudentBooking: React.FC = () => {
 
   const fetchMenu = async () => {
     try {
-      // Direct fetch from backend API
-      const response = await fetch('http://localhost:3000/api/menu');
-      if (!response.ok) throw new Error('Failed to fetch menu');
-      const data = await response.json();
+      const { getDailyItems } = await import('../../services/menu.service');
+      const data = await getDailyItems();
 
-      // Map backend data to frontend model if necessary
-      // Assuming backend might return different field names, mapped here safely
-      const mapped = Array.isArray(data) ? data.map((item: any) => ({
-        id: item.id || item._id,
-        name: item.name || item.itemName || 'Unknown Item',
-        price: item.price || { regular: 0 },
-        category: item.category || 'Lunch',
-        type: item.type || (item.isVeg ? (item.type === 'Vegan' ? 'Vegan' : 'Veg') : 'Non-Veg'),
-        isJain: item.isJain || false,
-        allergens: item.allergens || [],
-        tags: item.tags || [],
-        imageColor: item.imageColor || 'bg-gray-100'
-      })) : [];
+      if (!data || data.length === 0) {
+        toast.error('No items available currently.');
+      }
 
-      // If backend returns empty array (no data), fallback to screenshot mock
-      if (mapped.length === 0) throw new Error('No items from backend');
-
-      setMenuItems(mapped);
+      setMenuItems(data as any[]);
     } catch (err) {
-      console.warn("Using fallback menu data:", err);
-      // Fallback if API fails (Strictly matches screenshot items)
-      setMenuItems([
-        { id: '1', name: 'Chicken Biryani', price: { small: 120, regular: 180 }, category: 'Lunch', type: 'Non-Veg', isJain: false, allergens: [], imageColor: 'bg-red-100' },
-        { id: '2', name: 'Veg Meals', price: { regular: 80 }, category: 'Lunch', type: 'Veg', isJain: true, allergens: ['Dairy'], imageColor: 'bg-green-100' },
-        { id: '3', name: 'Paneer Butter Masala', price: { small: 90, regular: 150 }, category: 'Lunch', type: 'Veg', isJain: false, allergens: ['Dairy', 'Nuts'], imageColor: 'bg-orange-50' },
-        { id: '4', name: 'Vegan Salad', price: { regular: 120 }, category: 'Lunch', type: 'Vegan', isJain: true, allergens: [], tags: ['Eco'], imageColor: 'bg-green-50' },
-        // Add some fallback items for other categories to test tabs
-        { id: '5', name: 'Masala Dosa', price: { regular: 60 }, category: 'Breakfast', type: 'Veg', isJain: true, allergens: [], imageColor: 'bg-orange-100' },
-        { id: '6', name: 'Samosa', price: { regular: 20 }, category: 'Snacks', type: 'Veg', isJain: false, allergens: ['Gluten'], imageColor: 'bg-yellow-100' },
-      ]);
+      console.warn("Failed to fetch menu:", err);
+      toast.error('Failed to load menu.');
+      setMenuItems([]);
     }
   };
 

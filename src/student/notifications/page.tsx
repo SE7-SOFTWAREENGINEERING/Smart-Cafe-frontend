@@ -267,15 +267,6 @@ const StudentNotifications: React.FC = () => {
         </div>
       )}
 
-      {/* Emergency Broadcast Mock */}
-      <div className="mt-8 p-4 bg-gray-900 rounded-xl text-center text-gray-400 text-xs">
-        <Megaphone className="mx-auto mb-2 opacity-50" size={20} />
-        <p>Emergency broadcasts are sent directly by Admin.</p>
-        <p className="text-[10px] mt-1">
-          {isConnected ? '🟢 Real-time updates active' : '🔴 Reconnecting...'}
-        </p>
-      </div>
-
     </div>
   );
 };
