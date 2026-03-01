@@ -69,7 +69,7 @@ const FoodWasteControl: React.FC = () => {
 
   // Compute risk level from waste stats
   const getWasteRisk = () => {
-    if (!stats) return { label: "N/A", color: "gray", variance: 0 };
+    if (!stats || stats.totalReports === 0) return { label: "No Data", color: "gray", variance: 0 };
     const highWaste = stats.byWasteAmount
       .filter((w) => ["Most", "All"].includes(w._id))
       .reduce((s, w) => s + w.count, 0);
