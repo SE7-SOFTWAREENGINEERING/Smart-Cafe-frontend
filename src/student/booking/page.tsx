@@ -18,6 +18,7 @@ import { getPublicSettings } from "../../services/system.service";
 import { useCart } from "../../store/cart.store";
 import toast from "react-hot-toast";
 import { getOperatingStatus } from "../../utils/serviceSchedule";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 // Frontend Interface
 interface FrontendMenuItem {
@@ -65,6 +66,7 @@ const StudentBooking: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [menuItems, setMenuItems] = useState<FrontendMenuItem[]>([]);
   const [loadingFood, setLoadingFood] = useState(true);
+  const [foodError, setFoodError] = useState<string | null>(null);
   const [canteens, setCanteens] = useState<Canteen[]>([]);
   const [canteensLoading, setCanteensLoading] = useState(true);
   const [serviceNotice, setServiceNotice] = useState("");
@@ -146,6 +148,7 @@ const StudentBooking: React.FC = () => {
 
   const fetchFood = async () => {
     setLoadingFood(true);
+    setFoodError(null);
     try {
       const backendItems: MenuItem[] = await getMenuItems(
         activeCanteenId ? { canteen: activeCanteenId } : undefined,
@@ -163,8 +166,14 @@ const StudentBooking: React.FC = () => {
         imageColor: getColor(item.itemName),
       }));
       setMenuItems(mapped);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch menu:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to load menu items";
+      setFoodError(msg);
+      setMenuItems([]);
     } finally {
       setLoadingFood(false);
     }
@@ -370,6 +379,17 @@ const StudentBooking: React.FC = () => {
           <div className="text-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-2 text-gray-400 text-sm">Loading menu...</p>
+          </div>
+        ) : foodError ? (
+          <div className="text-center py-20">
+            <AlertCircle className="mx-auto text-red-400 mb-3" size={32} />
+            <p className="text-sm text-gray-600 mb-2">{foodError}</p>
+            <button
+              onClick={fetchFood}
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              <RefreshCw size={14} /> Retry
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
