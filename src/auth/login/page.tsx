@@ -139,30 +139,7 @@ const LoginPage: React.FC = () => {
           </Button>
         </form>
 
-        <div className="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm text-blue-800">
-          <p className="font-semibold mb-2 flex items-center gap-2">
-            <AlertCircle size={16} className="text-blue-600" />
-            Testing Instructions
-          </p>
-          <div className="space-y-2">
-            <div>
-              <span className="font-medium text-blue-900">Try logging in with:</span>
-              <ul className="list-disc pl-5 mt-1 text-blue-700">
-                <li>A <strong>Manager</strong> account <button type="button" onClick={() => {setEmail('manager@college.edu'); setPassword('password123')}} className="text-xs bg-blue-200 hover:bg-blue-300 px-2 py-0.5 rounded ml-2">Auto-fill</button></li>
-                <li>OR A <strong>Staff</strong> account <button type="button" onClick={() => {setEmail('staff@college.edu'); setPassword('password123')}} className="text-xs bg-blue-200 hover:bg-blue-300 px-2 py-0.5 rounded ml-2">Auto-fill</button></li>
-              </ul>
-            </div>
-            <div className="pt-2 border-t border-blue-200">
-              <span className="font-medium text-blue-900">Because:</span>
-              <ul className="list-none space-y-1 mt-1 text-blue-700">
-                <li><span className="font-medium">Walk-in Management</span> → Staff</li>
-                <li><span className="font-medium">Slot Management</span> → Manager</li>
-                <li><span className="font-medium">Food Waste Control</span> → Manager</li>
-                <li><span className="font-medium">Queue Monitor</span> → Manager</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+
 
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
