@@ -100,17 +100,21 @@ const QueueMonitor: React.FC<Props> = ({ canteenId }) => {
   };
 
   const trafficLevel =
-    stats.inQueue > 50
-      ? "High Traffic"
-      : stats.inQueue > 20
-        ? "Moderate"
-        : "Low Traffic";
+    stats.issued === 0 && stats.inQueue === 0
+      ? "No Data"
+      : stats.inQueue > 50
+        ? "High Traffic"
+        : stats.inQueue > 20
+          ? "Moderate"
+          : "Low Traffic";
   const trafficColor =
-    stats.inQueue > 50
-      ? "text-red-600 bg-red-50"
-      : stats.inQueue > 20
-        ? "text-amber-600 bg-amber-50"
-        : "text-green-600 bg-green-50";
+    stats.issued === 0 && stats.inQueue === 0
+      ? "text-gray-500 bg-gray-100"
+      : stats.inQueue > 50
+        ? "text-red-600 bg-red-50"
+        : stats.inQueue > 20
+          ? "text-amber-600 bg-amber-50"
+          : "text-green-600 bg-green-50";
 
   if (loading) {
     return (
