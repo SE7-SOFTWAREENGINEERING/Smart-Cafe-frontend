@@ -28,7 +28,7 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
   const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newSlot, setNewSlot] = useState({ time: "", capacity: 150 });
+  const [newSlot, setNewSlot] = useState<{ time: string; capacity: number | string }>({ time: "", capacity: "" });
   const [creating, setCreating] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -93,12 +93,12 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
       await createSlot({
         date: dateStr,
         time: newSlot.time,
-        capacity: newSlot.capacity,
+        capacity: Number(newSlot.capacity) || 0,
         canteenId,
       });
       toast.success("Slot created");
       setShowAddForm(false);
-      setNewSlot({ time: "", capacity: 150 });
+      setNewSlot({ time: "", capacity: "" });
       await loadSlots();
     } catch {
       toast.error("Failed to create slot");
@@ -172,7 +172,7 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
             type="number"
             value={newSlot.capacity}
             onChange={(e) =>
-              setNewSlot((s) => ({ ...s, capacity: +e.target.value }))
+              setNewSlot((s) => ({ ...s, capacity: e.target.value === "" ? "" : +e.target.value }))
             }
             placeholder="Capacity"
             className="w-full text-sm border border-gray-200 rounded px-2 py-1.5"
