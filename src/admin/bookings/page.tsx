@@ -47,6 +47,7 @@ const AdminBookings: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newSlot, setNewSlot] = useState({
+    date: getLocalDateString(),
     time: "",
     capacity: 200,
     mealType: "LUNCH" as "BREAKFAST" | "LUNCH" | "DINNER" | "SNACKS",
@@ -221,7 +222,7 @@ const AdminBookings: React.FC = () => {
     }
 
     // 1. Minimum Time Validation
-    if (newSlot.time && selectedDate === getLocalDateString()) {
+    if (newSlot.time && newSlot.date === getLocalDateString()) {
       const now = new Date();
       const minTime = new Date(
         now.getTime() + SLOT_CREATION_BUFFER_MINUTES * 60000,
@@ -239,7 +240,7 @@ const AdminBookings: React.FC = () => {
 
     // 2. Operating Schedule Validation
     if (operatingSchedule.length > 0) {
-      const dateObj = new Date(selectedDate);
+      const dateObj = new Date(newSlot.date);
       const days = [
         "Sunday",
         "Monday",
@@ -277,7 +278,7 @@ const AdminBookings: React.FC = () => {
 
     try {
       await apiCreateSlot({
-        date: selectedDate,
+        date: newSlot.date,
         time: newSlot.time,
         capacity: newSlot.capacity,
         mealType: newSlot.mealType,
@@ -286,6 +287,7 @@ const AdminBookings: React.FC = () => {
       toast.success("Slot created successfully");
       setIsCreateModalOpen(false);
       setNewSlot({
+        date: selectedDate,
         time: "",
         capacity: 200,
         mealType: "LUNCH",
@@ -311,10 +313,10 @@ const AdminBookings: React.FC = () => {
   };
 
   const minSlotTime =
-    selectedDate === getLocalDateString()
+    newSlot.date === getLocalDateString()
       ? new Date(Date.now() + SLOT_CREATION_BUFFER_MINUTES * 60000)
-          .toTimeString()
-          .slice(0, 5)
+        .toTimeString()
+        .slice(0, 5)
       : undefined;
 
   return (
@@ -361,10 +363,13 @@ const AdminBookings: React.FC = () => {
           </Button>
           <Button
             onClick={() => {
-              setNewSlot((prev) => ({
-                ...prev,
-                canteenId: prev.canteenId || selectedCanteenId,
-              }));
+              setNewSlot({
+                date: selectedDate,
+                time: "",
+                capacity: 200,
+                mealType: "LUNCH",
+                canteenId: selectedCanteenId,
+              });
               setIsCreateModalOpen(true);
             }}
           >
@@ -676,14 +681,15 @@ const AdminBookings: React.FC = () => {
                   Date
                 </label>
                 <input
-                  disabled
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
-                  value={selectedDate}
+                  required
+                  type="date"
+                  min={getLocalDateString()}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  value={newSlot.date}
+                  onChange={(e) =>
+                    setNewSlot({ ...newSlot, date: e.target.value })
+                  }
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Slot will be created for the selected date.
-                </p>
               </div>
 
               <div className="pt-4 flex justify-end gap-3">
