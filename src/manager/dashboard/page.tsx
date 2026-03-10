@@ -39,7 +39,7 @@ const ManagerDashboard: React.FC = () => {
       try {
         const data = await getCanteens({ isActive: true });
         setCanteens(data);
-        
+
         // Restore selection from localStorage or use first canteen
         const savedCanteenId = localStorage.getItem(STORAGE_KEY);
         if (savedCanteenId && data.some(c => c.id === savedCanteenId || c._id === savedCanteenId)) {
@@ -126,8 +126,14 @@ const ManagerDashboard: React.FC = () => {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-100 text-green-700 font-medium text-sm">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm ${selectedCanteen?.status === "Open"
+              ? "bg-green-100 text-green-700"
+              : selectedCanteen?.status === "Closing Soon"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-red-100 text-red-700"
+            }`}>
+            <span className={`w-2 h-2 rounded-full animate-pulse ${selectedCanteen?.status === "Open" ? "bg-green-500" : selectedCanteen?.status === "Closing Soon" ? "bg-amber-500" : "bg-red-500"
+              }`}></span>
             {selectedCanteen?.status || "Open"}
           </div>
 
@@ -144,7 +150,11 @@ const ManagerDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Row 1: Demand & Waste (Sustainability) */}
         <div className="lg:col-span-2">
-          <DemandForecast key={`df-${refreshKey}`} mealType={currentSession} />
+          <DemandForecast
+            key={`df-${refreshKey}`}
+            mealType={currentSession}
+            canteenId={selectedCanteenId}
+          />
         </div>
         <div className="lg:col-span-1">
           <FoodWasteControl key={`fw-${refreshKey}`} />

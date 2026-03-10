@@ -8,6 +8,10 @@ export const API_CONFIG = {
 
   // Python Forecasting API (ML predictions)
   FORECAST_API_URL: "http://localhost:5001",
+
+  // Weather API (OpenWeatherMap)
+  WEATHER_API_URL: "https://api.openweathermap.org/data/2.5",
+  WEATHER_API_KEY: import.meta.env.VITE_OPENWEATHER_KEY || "demo",
 };
 
 // Create axios instance with default config

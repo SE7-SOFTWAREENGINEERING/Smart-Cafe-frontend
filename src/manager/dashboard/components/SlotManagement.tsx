@@ -6,6 +6,8 @@ import {
   AlertTriangle,
   Loader2,
   X,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import {
   getSlots,
@@ -23,6 +25,7 @@ interface Props {
 
 const SlotManagement: React.FC<Props> = ({ canteenId }) => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newSlot, setNewSlot] = useState<{ time: string; capacity: number | string }>({ time: "", capacity: "" });
@@ -38,8 +41,16 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
       const data = await getSlots({ date: dateStr, canteenId });
       const list = Array.isArray(data) ? data : (data as any).slots || [];
       setSlots(list);
-    } catch {
-      /* ignore */
+      setError(null);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to load slots";
+      // Only set error on initial load, not on poll failures
+      if (slots.length === 0) {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -63,6 +74,16 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
     if (slot.status?.toLowerCase() === "cancelled") return "Cancelled";
     if ((slot.booked || 0) >= (slot.capacity || 1)) return "Full";
     return "Available";
+  };
+
+  const formatSlotTime = (slot: Slot): string => {
+    if (slot.startTime && slot.endTime) {
+      return `${slot.startTime} - ${slot.endTime}`;
+    }
+    if (slot.startTime) return slot.startTime;
+    const rawTime = (slot as any).time;
+    if (rawTime) return rawTime;
+    return "—";
   };
 
   const handleAddSlot = async () => {
@@ -101,6 +122,25 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
     return (
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full flex items-center justify-center min-h-[250px]">
         <Loader2 className="animate-spin text-gray-400" size={28} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full flex flex-col items-center justify-center min-h-[250px] gap-3">
+        <AlertCircle className="text-red-400" size={28} />
+        <p className="text-sm text-gray-600 text-center">{error}</p>
+        <button
+          onClick={() => {
+            setLoading(true);
+            setError(null);
+            loadSlots();
+          }}
+          className="text-sm text-brand hover:text-brand-hover font-medium flex items-center gap-1"
+        >
+          <RefreshCw size={14} /> Retry
+        </button>
       </div>
     );
   }
@@ -163,10 +203,7 @@ const SlotManagement: React.FC<Props> = ({ canteenId }) => {
           slots.map((slot) => {
             const status = getSlotStatus(slot);
             const slotId = slot.id || (slot as any)._id;
-            const timeLabel =
-              slot.startTime && slot.endTime
-                ? `${slot.startTime} - ${slot.endTime}`
-                : slot.startTime || (slot as any).time || "No time";
+            const timeLabel = formatSlotTime(slot);
             return (
               <div
                 key={slotId}

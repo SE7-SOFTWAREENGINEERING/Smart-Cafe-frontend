@@ -12,7 +12,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
-import { getMenuItems, type MenuItem } from "../../services/menu.service";
+import { getMenuItemById, type MenuItem } from "../../services/menu.service";
 import { useCart } from "../../store/cart.store";
 import toast from "react-hot-toast";
 
@@ -45,6 +45,7 @@ const StudentItemDetail: React.FC = () => {
 
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -54,12 +55,22 @@ const StudentItemDetail: React.FC = () => {
 
   const fetchItem = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const items = await getMenuItems();
-      const found = items.find((i) => (i.id || i._id) === id);
+      if (!id) {
+        setError("No item ID provided");
+        return;
+      }
+      const found = await getMenuItemById(id);
       setItem(found || null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch item:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to load item details";
+      setError(msg);
+      setItem(null);
     } finally {
       setLoading(false);
     }
@@ -76,8 +87,21 @@ const StudentItemDetail: React.FC = () => {
   if (!item) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-gray-500">Item not found</p>
-        <Button onClick={() => navigate(-1)}>Go Back</Button>
+        {error ? (
+          <>
+            <AlertTriangle size={32} className="text-red-400" />
+            <p className="text-gray-600 text-sm text-center max-w-xs">{error}</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => navigate(-1)}>Go Back</Button>
+              <Button onClick={fetchItem}>Retry</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-500">Item not found</p>
+            <Button onClick={() => navigate(-1)}>Go Back</Button>
+          </>
+        )}
       </div>
     );
   }
