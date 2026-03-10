@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Smart Cafe Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React (TypeScript) frontend for the Smart Cafe application, built with Vite and TailwindCSS.
 
-Currently, two official plugins are available:
+## Feature Overview & CI/CD Status
+This repository has been recently upgraded to support a robust, automated DevOps lifecycle:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ **Continuous Integration (GitHub Actions)**: Automated pipeline triggers on every push/PR to run linting, unit tests, and production builds.
+- ✅ **Optimized Containerization (Docker)**: Includes a multi-stage `Dockerfile` utilizing an Nginx server for production-ready, lightweight application serving.
+- ✅ **Test Infrastructure (`vitest` & `happy-dom`)**: Fast, resilient ESM-compatible unit testing environment mirroring the DOM. Ensure reliable API mocking via isolated `vi.mock` configurations.
+- ✅ **Clean Codebase**: Fully standardized UTF-8 configuration files (such as `.gitignore`), guaranteeing no ghost-tracked `node_modules`.
 
-## React Compiler
+## Tech Stack
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS, PostCSS, Autoprefixer
+- **Testing**: Vitest, React Testing Library, Happy-DOM
+- **Routing**: React Router DOM
+- **Network Requests**: Axios (with centralized `api.config.ts`)
+- **Containerization**: Docker, Nginx
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Quick Start (Local Development)
+```bash
+# 1. Install Dependencies
+npm install
 
-## Expanding the ESLint configuration
+# 2. Run the Development Server
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 3. Run the Unit Tests
+npm run test
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Running with Docker (Production Mode)
+To run the full frontend stack locally exactly as it would appear in production:
+```bash
+# From the root of the project (where docker-compose.yml lives)
+docker-compose up --build -d
 ```
+The application will be served at `http://localhost:80`.
+
+## Project Structure Highlights
+- `/src/services`: Contains the `api.config.ts` network interceptors and all endpoint connectors (auth, booking, forecast, etc.).
+- `/src/services/__tests__`: Comprehensive Vitest test suites.
+- `/.github/workflows/ci-cd.yml`: The GitHub Actions CI pipeline configuration.
