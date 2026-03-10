@@ -1,19 +1,46 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
+import api from '../api.config';
 import { login, logout, register, sendOtp, verifyOtp, resetPassword } from '../auth.service';
 
-// Mock axios
-vi.mock('axios');
+// Mock axios BEFORE importing modules that use it
+vi.mock('axios', () => {
+  const m = {
+    post: vi.fn(),
+    get: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+    create: vi.fn().mockReturnThis(),
+    interceptors: {
+      request: { use: vi.fn(), eject: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn() },
+    },
+  };
+  return {
+    default: m,
+    ...m,
+  };
+});
 const mockedAxios = vi.mocked(axios, true);
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Mock api config
+vi.mock('../api.config', () => {
+  const mockApi = {
+    get: vi.fn(),
+    post: vi.fn(),
+  };
+  return {
+    default: mockApi,
+    api: mockApi,
+    API_CONFIG: {
+      BASE_URL: 'http://localhost:3000/api'
+    }
+  };
+});
+const mockedApi = vi.mocked(api, true);
+
+// Mock localStorage from setup.ts globally
+const localStorageMock = (window as any).localStorage;
 
 describe('Auth Service', () => {
   beforeEach(() => {
@@ -80,7 +107,7 @@ describe('Auth Service', () => {
 
       expect(mockedAxios.post).toHaveBeenCalledWith(
         expect.stringContaining('/auth/register'),
-        { name: 'Test User', email: 'new@example.com', password: 'password123', role: 'Student' }
+        { fullName: 'Test User', email: 'new@example.com', password: 'password123', role: 'student' }
       );
       expect(localStorageMock.setItem).toHaveBeenCalledWith('token', 'new-token');
       expect(result).toEqual(mockResponse.data.data.user);
