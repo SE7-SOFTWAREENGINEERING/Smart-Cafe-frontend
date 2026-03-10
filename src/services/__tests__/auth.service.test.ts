@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import api from '../api.config';
 import { login, logout, register, sendOtp, verifyOtp, resetPassword } from '../auth.service';
 
 // Mock axios BEFORE importing modules that use it
@@ -37,7 +36,7 @@ vi.mock('../api.config', () => {
     }
   };
 });
-const mockedApi = vi.mocked(api, true);
+// The mockedApi variable is not needed here as auth tests use axios
 
 // Mock localStorage from setup.ts globally
 const localStorageMock = (window as any).localStorage;
